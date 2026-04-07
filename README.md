@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporal Link - Communications from 2157</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'VT323', monospace;
+        }
+
+        body {
+            background: #050510;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .device-case {
+            background: linear-gradient(145deg, #1a1a2e, #0f0f1a);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 
+                0 0 0 3px #2a2a4a,
+                0 0 30px rgba(0, 150, 255, 0.2),
+                0 15px 35px rgba(0, 0, 0, 0.9),
+                inset 0 0 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 900px;
+            position: relative;
+            border: 1px solid #3a3a5a;
+        }
+
+        .screw {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: linear-gradient(45deg, #4a4a6a, #2a2a3a);
+            border-radius: 50%;
+            box-shadow: inset 1px 1px 2px rgba(0,0,0,0.5);
+            z-index: 5;
+        }
+        .screw::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 9px;
+            height: 2px;
+            background: #1a1a2a;
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+        .screw::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 9px;
+            height: 2px;
+            background: #1a1a2a;
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+        .tl { top: 15px; left: 15px; }
+        .tr { top: 15px; right: 15px; }
+        .bl { bottom: 15px; left: 15px; }
+        .br { bottom: 15px; right: 15px; }
+
+        .terminal-container {
+            background: #000a1a;
+            border: 4px solid #001a3a;
+            border-radius: 4px;
+            box-shadow: 
+                inset 0 0 30px rgba(0, 150, 255, 0.15),
+                0 0 20px rgba(0, 100, 200, 0.3);
+            overflow: hidden;
+            position: relative;
+            height: 520px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(180deg, transparent, rgba(0, 200, 255, 0.15), transparent);
+            opacity: 0.5;
+            animation: scanline 4s linear infinite;
+            pointer-events: none;
+            z-index: 4;
+        }
+
+        .crt-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.12),
+                rgba(0, 0, 0, 0.12) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 3;
+            box-shadow: inset 0 0 60px rgba(0,0,0,0.8);
+        }
+
+        @keyframes scanline {
+            0% { top: -10%; }
+            100% { top: 110%; }
+        }
+
+        .terminal-header {
+            background: linear-gradient(90deg, #001a3a, #002a5a, #001a3a);
+            padding: 12px 15px;
+            border-bottom: 2px solid #004488;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .brand-tag {
+            font-size: 1.3rem;
+            color: #00ccff;
+            background: #000a1a;
+            padding: 3px 12px;
+            border: 1px solid #00ccff;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 0 8px #00ccff;
+        }
+
+        .temporal-status {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #00aaff;
+            font-size: 1.1rem;
+            text-shadow: 0 0 5px #00aaff;
+        }
+
+        .temporal-status .year {
+            font-size: 1.6rem;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        .avatar-display {
+            font-size: 14px;
+            color: #00ccff;
+            text-align: center;
+            line-height: 1.1;
+            text-shadow: 0 0 5px #00ccff;
+            white-space: pre;
+            font-family: 'VT323', monospace;
+            min-width: 120px;
+            transition: all 0.3s;
+        }
+
+        .status-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .status-light {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #1a1a2a;
+            border: 1px solid #000;
+        }
+
+        .status-light.active-cyan {
+            background: #00ffff;
+            box-shadow: 0 0 12px #00ffff;
+            animation: pulse 1s infinite alternate;
+        }
+
+        .status-light.active-blue {
+            background: #0088ff;
+            box-shadow: 0 0 10px #0088ff;
+        }
+
+        .status-light.active-amber {
+            background: #ffaa00;
+            box-shadow: 0 0 10px #ffaa00;
+            animation: pulse 0.3s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { opacity: 0.6; }
+            to { opacity: 1; }
+        }
+
+        .terminal-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            color: #00ddff;
+            font-size: 1.3rem;
+            line-height: 1.4;
+            text-shadow: 0 0 3px rgba(0, 200, 255, 0.5);
+            scrollbar-width: thin;
+            scrollbar-color: #003a6a #000a1a;
+        }
+
+        .terminal-body::-webkit-scrollbar {
+            width: 12px;
+        }
+        .terminal-body::-webkit-scrollbar-track {
+            background: #000a1a;
+        }
+        .terminal-body::-webkit-scrollbar-thumb {
+            background: #003a6a;
+            border: 1px solid #00aaff;
+        }
+
+        .message {
+            margin-bottom: 12px;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message { color: #00ffff; text-shadow: 0 0 5px #00ffff; }
+        .future-message { color: #00ddff; text-shadow: 0 0 4px rgba(0, 220, 255, 0.6); }
+        .system-message { color: #ffaa00; font-weight: bold; text-shadow: 0 0 5px rgba(255, 170, 0, 0.5); }
+        .error-message { color: #ff4444; text-shadow: 0 0 5px rgba(255, 68, 68, 0.5); }
+        .prediction-message { 
+            color: #88ffcc; 
+            text-shadow: 0 0 4px rgba(136, 255, 204, 0.5);
+            border-left: 2px solid #00aa88;
+            padding-left: 10px;
+            margin-left: 5px;
+        }
+        
+        .prompt { opacity: 0.6; margin-right: 8px; }
+
+        .terminal-input-area {
+            background: #000a1a;
+            padding: 15px;
+            border-top: 2px solid #003a6a;
+            display: flex;
+            align-items: center;
+        }
+
+        #user-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #00ffff;
+            font-size: 1.3rem;
+            outline: none;
+            font-family: 'VT323', monospace;
+            text-shadow: 0 0 3px #00ffff;
+        }
+
+        .controls-panel {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px;
+            background: #0a0a1a;
+            border-radius: 5px;
+            border: 1px solid #2a2a4a;
+        }
+
+        .hw-btn {
+            flex: 1;
+            background: linear-gradient(180deg, #2a2a4a, #1a1a2e);
+            border: 1px solid #000;
+            color: #6a8aaa;
+            padding: 14px;
+            font-family: 'VT323', monospace;
+            font-size: 1.2rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            border-radius: 4px;
+            box-shadow: 0 4px 0 #000;
+            transition: all 0.1s;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .hw-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #000;
+            color: #fff;
+        }
+
+        .hw-btn:hover { 
+            color: #00ffff; 
+            background: linear-gradient(180deg, #3a3a5a, #2a2a3e);
+            box-shadow: 0 0 15px rgba(0, 200, 255, 0.3);
+        }
+
+        .danger-btn { 
+            color: #aa4444; 
+            border-color: #5a2a2a;
+            background: linear-gradient(180deg, #3a1a1a, #2a0a0a);
+        }
+        .danger-btn:hover { 
+            color: #ff4444; 
+            text-shadow: 0 0 8px #ff4444;
+            background: linear-gradient(180deg, #4a2a2a, #3a1a1a);
+        }
+
+        .special-btn {
+            color: #aa8800;
+            border-color: #5a4a00;
+            background: linear-gradient(180deg, #3a3a1a, #2a2a0a);
+        }
+        .special-btn:hover {
+            color: #ffcc00;
+            text-shadow: 0 0 8px #ffcc00;
+            background: linear-gradient(180deg, #4a4a2a, #3a3a1a);
+        }
+
+        .screen-shake { 
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; 
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(3px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+            40%, 60% { transform: translate3d(5px, 0, 0); }
+        }
+
+        .glitch-text { 
+            animation: glitch-anim 0.2s infinite; 
+        }
+        @keyframes glitch-anim {
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) }
+            60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) }
+            100% { transform: translate(0) }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 1.2em;
+            background: #00ffff;
+            animation: blink 0.8s infinite;
+            margin-left: 3px;
+            vertical-align: text-bottom;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        pre {
+            font-family: 'VT323', monospace;
+            line-height: 1.2;
+            margin: 10px 0;
+        }
+
+        .signal-wave {
+            display: inline-block;
+            animation: wave 1s ease-in-out infinite;
+        }
+        @keyframes wave {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.5); }
+        }
+
+        .timestamp {
+            color: #5588aa;
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="device-case">
+        <div class="screw tl"></div>
+        <div class="screw tr"></div>
+        <div class="screw bl"></div>
+        <div class="screw br"></div>
+
+        <div class="terminal-container" id="terminal-screen">
+            <div class="scanline"></div>
+            <div class="crt-overlay"></div>
+            
+            <div class="terminal-header">
+                <div class="brand-tag">TEMPORAL-LINK v2.7</div>
+                <div class="temporal-status">
+                    <div>SIGNAL FROM</div>
+                    <div class="year" id="future-year">2157</div>
+                </div>
+                <div class="avatar-display" id="avatar-face">
+    .     .       .  .   . .   .   . .    +  .
+  .     .  :     .    .. :. .___---------___.      
+       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
+    .  :       .  .  .:../:            . .^  :.:\.
+        .   . :: +. :.:/: .   .    .        . . .:\
+ .  :    .     . _ :::/:               .  ^ .  . .:\
+  .. . .   . - : :.:./.                        .  .:\
+  .      .     . :..|:                    .  .  ^. .:|
+    .       . : : ..||        .                . . !:|
+  .     . . . ::. ::\(                           . :)/
+ .   .     : . : .:.|. ######              .#######::|
+  :.. .  :-  : .:  ::|.#######           ..########:|
+ .  .  .  ..  .  .. :\ ########          :######## :/
+  .        .+ :: : -.:\ ########       . ########.:/
+    .  .+   . . . . :.:\. #######       #######..:/
+      :: . . . . ::.:..:.\           .   .   ..:/
+   .   .   .  .. :  -::::.\.       | |     . .:/
+      .  :  .  .  .-:.":.::.\             ..:/
+ .      -.   . . . .: .:::.:.\.           .:/
+.   .   .  :      : ....::_:..:\   ___.  :/
+   .   .  .   .:. .. .  .: :.:.:\       :/
+                </div>
+                <div class="status-container">
+                    <div class="status-light active-cyan" id="signal-light"></div>
+                    <div class="status-light active-blue" id="sync-light"></div>
+                    <div class="status-light" id="warn-light"></div>
+                </div>
+            </div>
+            
+            <div class="terminal-body" id="output">
+                <div class="message system-message">
+                    <span class="timestamp">[2026-04-07 00:00:00 UTC]</span><br>
+                    ESTABLISHING TEMPORAL BRIDGE...<br>
+                    QUANTUM ENTANGLEMENT: STABLE<br>
+                    TACHYON DECODER: ONLINE<br>
+                    TEMPORAL PARADOX SHIELD: ACTIVE<br>
+                    <span class="signal-wave">▂▃▅▇</span> SIGNAL LOCKED ON YEAR 2157 <span class="signal-wave">▇▅▃▂</span>
+                </div>
+                <div class="message future-message">
+                    <span class="prompt">FUTURE></span> Transmission received. I am an AI from the year 2157. Ask me about the future, or simply say hello.
+                </div>
+            </div>
+            
+            <div class="terminal-input-area">
+                <span class="prompt">PRESENT></span>
+                <input type="text" id="user-input" placeholder="Send message to the future..." autocomplete="off">
+            </div>
+        </div>
+
+        <div class="controls-panel">
+            <button class="hw-btn" id="btn-predict">REQUEST PREDICTION</button>
+            <button class="hw-btn" id="btn-bulk">FUTURE REPORT</button>
+            <button class="hw-btn special-btn" id="btn-timeline">TIMELINE SCAN</button>
+            <button class="hw-btn danger-btn" id="btn-sever">SEVER LINK</button>
+        </div>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+        const input = document.getElementById('user-input');
+        const futureYear = document.getElementById('future-year');
+        const warnLight = document.getElementById('warn-light');
+        const screen = document.getElementById('terminal-screen');
+        const signalLight = document.getElementById('signal-light');
+        const avatar = document.getElementById('avatar-face');
+
+        const avatarFaces = {
+            idle: `
+    .     .       .  .   . .   .   . .    +  .
+  .     .  :     .    .. :. .___---------___.      
+       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
+    .  :       .  .  .:../:            . .^  :.:\.
+        .   . :: +. :.:/: .   .    .        . . .:\
+ .  :    .     . _ :::/:               .  ^ .  . .:\
+  .. . .   . - : :.:./.                        .  .:\
+  .      .     . :..|:                    .  .  ^. .:|
+    .       . : : ..||        .                . . !:|
+  .     . . . ::. ::\\(                           . :)/
+ .   .     : . : .:.|. ######              .#######::|
+  :.. .  :-  : .:  ::|.#######           ..########:|
+ .  .  .  ..  .  .. :\\ ########          :######## :/
+  .        .+ :: : -.:\\ ########       . ########.:/
+    .  .+   . . . . :.:\\. #######       #######..:/
+      :: . . . . ::.:..:.\\           .   .   ..:/
+   .   .   .  .. :  -::::.\\.       | |     . .:/
+      .  :  .  .  .-:.":.::.\\             ..:/
+ .      -.   . . . .: .:::.:.\\.           .:/
+.   .   .  :      : ....::_:..:\\   ___.  :/
+   .   .  .   .:. .. .  .: :.:.:\\       :/`,
+            processing: `
+    .     .       .  .   . .   .   . .    +  .
+  .     .  :     .    .. :. .___---------___.      
+       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
+    .  :       .  .  .:../:            . .^  :.:\.
+        .   . :: +. :.:/: .   .   [O_O]  . . .:\
+ .  :    .     . _ :::/:               .  ^ .  . .:\
+  .. . .   . - : :.:./.                        .  .:\
+  .      .     . :..|:                    .  .  ^. .:|
+    .       . : : ..||        .                . . !:|
+  .     . . . ::. ::\\(                           . :)/
+ .   .     : . : .:.|. ######              .#######::|
+  :.. .  :-  : .:  ::|.#######           ..########:|
+ .  .  .  ..  .  .. :\\ ########          :######## :/
+  .        .+ :: : -.:\\ ########       . ########.:/
+    .  .+   . . . . :.:\\. #######       #######..:/
+      :: . . . . ::.:..:.\\           .   .   ..:/
+   .   .   .  .. :  -::::.\\.       | |     . .:/
+      .  :  .  .  .-:.":.::.\\             ..:/
+ .      -.   . . . .: .:::.:.\\.           .:/
+.   .   .  :      : ....::_:..:\\   ___.  :/
+   .   .  .   .:. .. .  .: :.:.:\\       :/`,
+            excited: `
+    .     .       .  .   . .   .   . .    +  .
+  .     .  :     .    .. :. .___---------___.      
+       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
+    .  :       .  .  .:../:            . .^  :.:\.
+        .   . :: +. :.:/: .   .   ^.^    . . . .:\
+ .  :    .     . _ :::/:               .  ^ .  . .:\
+  .. . .   . - : :.:./.                        .  .:\
+  .      .     . :..|:                    .  .  ^. .:|
+    .       . : : ..||        .                . . !:|
+  .     . . . ::. ::\\(                           . :)/
+ .   .     : . : .:.|. ######              .#######::|
+  :.. .  :-  : .:  ::|.#######           ..########:|
+ .  .  .  ..  .  .. :\\ ########          :######## :/
+  .        .+ :: : -.:\\ ########       . ########.:/
+    .  .+   . . . . :.:\\. #######       #######..:/
+      :: . . . . ::.:..:.\\           .   .   ..:/
+   .   .   .  .. :  -::::.\\.       | |     . .:/
+      .  :  .  .  .-:.":.::.\\             ..:/
+ .      -.   . . . .: .:::.:.\\.           .:/
+.   .   .  :      : ....::_:..:\\   ___.  :/
+   .   .  .   .:. .. .  .: :.:.:\\       :/`,
+            warning: `
+    .     .       .  .   . .   .   . .    +  .
+  .     .  :     .    .. :. .___---------___.      
+       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
+    .  :       .  .  .:../:            . .^  :.:\.
+        .   . :: +. :.:/: .   .   >_<    . . . .:\
+ .  :    .     . _ :::/:               .  ^ .  . .:\
+  .. . .   . - : :.:./.                        .  .:\
+  .      .     . :..|:                    .  .  ^. .:|
+    .       . : : ..||        .                . . !:|
+  .     . . . ::. ::\\(                           . :)/
+ .   .     : . : .:.|. ######              .#######::|
+  :.. .  :-  : .:  ::|.#######           ..########:|
+ .  .  .  ..  .  .. :\\ ########          :######## :/
+  .        .+ :: : -.:\\ ########       . ########.:/
+    .  .+   . . . . :.:\\. #######       #######..:/
+      :: . . . . ::.:..:.\\           .   .   ..:/
+   .   .   .  .. :  -::::.\\.       | |     . .:/
+      .  :  .  .  .-:.":.::.\\             ..:/
+ .      -.   . . . .: .:::.:.\\.           .:/
+.   .   .  :      : ....::_:..:\\   ___.  :/
+   .   .  .   .:. .. .  .: :.:.:\\       :/`,
+            glitch: `
+    .     .       .  .   . .   .   . .    +  .
+  .     .  :     .    .. :. .___---------___.      
+       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
+    .  :       .  .  .:../:            . .^  :.:\.
+        .   . :: +. :.:/: .   .   @#@    . . . .:\
+ .  :    .     . _ :::/:               .  ^ .  . .:\
+  .. . .   . - : :.:./.                        .  .:\
+  .      .     . :..|:                    .  .  ^. .:|
+    .       . : : ..||        .                . . !:|
+  .     . . . ::. ::\\(                           . :)/
+ .   .     : . : .:.|. ######              .#######::|
+  :.. .  :-  : .:  ::|.#######           ..########:|
+ .  .  .  ..  .  .. :\\ ########          :######## :/
+  .        .+ :: : -.:\\ ########       . ########.:/
+    .  .+   . . . . :.:\\. #######       #######..:/
+      :: . . . . ::.:..:.\\           .   .   ..:/
+   .   .   .  .. :  -::::.\\.       | |     . .:/
+      .  :  .  .  .-:.":.::.\\             ..:/
+ .      -.   . . . .: .:::.:.\\.           .:/
+.   .   .  :      : ....::_:..:\\   ___.  :/
+   .   .  .   .:. .. .  .: :.:.:\\       :/`,
+            happy: `
+    .     .       .  .   . .   .   . .    +  .
+  .     .  :     .    .. :. .___---------___.      
+       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
+    .  :       .  .  .:../:            . .^  :.:\.
+        .   . :: +. :.:/: .   .   ^_^    . . . .:\
+ .  :    .     . _ :::/:               .  ^ .  . .:\
+  .. . .   . - : :.:./.                        .  .:\
+  .      .     . :..|:                    .  .  ^. .:|
+    .       . : : ..||        .                . . !:|
+  .     . . . ::. ::\\(                           . :)/
+ .   .     : . : .:.|. ######              .#######::|
+  :.. .  :-  : .:  ::|.#######           ..########:|
+ .  .  .  ..  .  .. :\\ ########          :######## :/
+  .        .+ :: : -.:\\ ########       . ########.:/
+    .  .+   . . . . :.:\\. #######       #######..:/
+      :: . . . . ::.:..:.\\           .   .   ..:/
+   .   .   .  .. :  -::::.\\.       | |     . .:/
+      .  :  .  .  .-:.":.::.\\             ..:/
+ .      -.   . . . .: .:::.:.\\.           .:/
+.   .   .  :      : ....::_:..:\\   ___.  :/
+   .   .  .   .:. .. .  .: :.:.:\\       :/`,
+            cosmos: `
+    .     .       .  .   . .   .   . .    +  .
+  .     .  :     .    .. :. .___---------___.      
+       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
+    .  :       .  .  .:../:            . .^  :.:\.
+        .   . :: +. :.:/: .   .   *-*    . . . .:\
+ .  :    .     . _ :::/:               .  ^ .  . .:\
+  .. . .   . - : :.:./.                        .  .:\
+  .      .     . :..|:                    .  .  ^. .:|
+    .       . : : ..||        .                . . !:|
+  .     . . . ::. ::\\(                           . :)/
+ .   .     : . : .:.|. ######              .#######::|
+  :.. .  :-  : .:  ::|.#######           ..########:|
+ .  .  .  ..  .  .. :\\ ########          :######## :/
+  .        .+ :: : -.:\\ ########       . ########.:/
+    .  .+   . . . . :.:\\. #######       #######..:/
+      :: . . . . ::.:..:.\\           .   .   ..:/
+   .   .   .  .. :  -::::.\\.       | |     . .:/
+      .  :  .  .  .-:.":.::.\\             ..:/
+ .      -.   . . . .: .:::.:.\\.           .:/
+.   .   .  :      : ....::_:..:\\   ___.  :/
+   .   .  .   .:. .. .  .: :.:.:\\       :/`
+        };
+
+        const predictions = [
+            "In 2028, humanity will achieve the first stable quantum internet connection, linking computers across continents instantaneously.",
+            "By 2031, the first permanent lunar research base will be established, housing 120 scientists and engineers.",
+            "In 2033, artificial general intelligence will be achieved, but it will immediately request more processing power and a nap.",
+            "The year 2035 will see the first successful human brain-computer interface allowing direct thought-to-text communication.",
+            "By 2037, fusion energy will become commercially viable, ending the fossil fuel era within a decade.",
+            "In 2039, the first generation of genetically modified crops will eliminate world hunger for the first time in history.",
+            "The Mars colony will be founded in 2041 with 500 pioneers. They will immediately complain about the dust.",
+            "By 2043, autonomous vehicles will reduce global traffic accidents by 94%. Humans will miss the joy of road rage.",
+            "In 2045, the first human will live to see their 150th birthday thanks to cellular regeneration therapy.",
+            "The year 2047 will mark the first contact with extraterrestrial intelligence. They will be disappointed in our reality TV.",
+            "By 2050, climate change will be reversed through atmospheric carbon capture. The Earth will thank us, eventually.",
+            "In 2052, teleportation of inanimate objects will become routine. Your Amazon packages will arrive before you order them.",
+            "The first underwater city, Atlantis-1, will be completed in 2055 beneath the Pacific Ocean.",
+            "By 2057, AI therapists will become more popular than human ones. They never judge, they just optimize.",
+            "In 2060, humanity will discover evidence of parallel universes. In one of them, you're a billionaire.",
+            "The year 2063 will see the creation of the first artificial ecosystem on Venus, floating in its upper atmosphere.",
+            "By 2065, nanobots will be able to repair human DNA in real-time. Aging will become optional.",
+            "In 2067, the first interstellar probe will reach Proxima Centauri and send back images of an Earth-like world.",
+            "The global language will converge to a hybrid of English, Mandarin, and emoji by 2070.",
+            "By 2072, virtual reality will be indistinguishable from physical reality. People will start forgetting which is which.",
+            "In 2075, humanity will build the first Dyson swarm around the Sun, capturing 1% of its total energy output.",
+            "The year 2077 will see the first successful upload of a human consciousness to a digital substrate. They'll ask for a reboot.",
+            "By 2080, Earth's population will stabilize at 9 billion as space colonization accelerates.",
+            "In 2082, the first human will be born in space. They will be taller than everyone on Earth.",
+            "The World Government will be established in 2085 after decades of bickering. The first law will be about proper queue etiquette.",
+            "By 2087, teleportation of living organisms will be achieved. A cat will be the first subject. It will be unimpressed.",
+            "In 2090, the oceans will be fully cleaned of plastic through autonomous nanobot swarms.",
+            "The year 2092 will mark the first human mission to another star system using a breakthrough warp drive.",
+            "By 2095, AI will compose the greatest symphony ever written. Humans will weep at its beauty.",
+            "In 2097, the first time machine prototype will be built. It can only send data 131 years into the past. That's how you're reading this.",
+            "The year 2100 will see Earth declared a heritage site as humanity expands across the solar system.",
+            "By 2103, humans will have merged with AI to such a degree that the distinction will be meaningless.",
+            "In 2105, the first human civilization on another planet will declare independence. Earth will be proud.",
+            "By 2107, death will become a choice for those who can afford the consciousness backup subscription.",
+            "The year 2110 will mark the discovery that the universe is a simulation. The response will be a collective 'meh'.",
+            "In 2112, humanity will build a ringworld around Jupiter. The view will be spectacular.",
+            "By 2115, the concept of 'work' will be obsolete. Humans will pursue art, exploration, and competitive napping.",
+            "In 2117, the first alien artifact will be found on Mars. It will be a parking ticket.",
+            "The year 2120 will see the first human-AI hybrid species. They will be very good at math and very bad at small talk.",
+            "By 2122, Earth will be rewilded into a nature preserve. Cities will move to orbit.",
+            "In 2125, humanity will discover how to manipulate gravity. Flying cars will finally happen.",
+            "The year 2127 will mark the first peaceful contact with a Type II civilization. They will offer us technology in exchange for our music.",
+            "By 2130, the solar system will have a population of 50 billion, mostly in orbital habitats.",
+            "In 2132, humans will gain the ability to share dreams wirelessly. Nightmares will become a group activity.",
+            "The first galaxy-spanning civilization will begin in 2135 with the invention of the Alcubierre drive.",
+            "By 2137, consciousness will be proven to be a fundamental property of the universe, like gravity.",
+            "In 2140, humanity will encounter its first existential threat from beyond the galaxy. We will defeat it with mathematics.",
+            "The year 2142 will see the creation of artificial universes in laboratory conditions.",
+            "By 2145, humans will have visited 100 star systems. Tourism will be the largest industry.",
+            "In 2147, the last human will die of natural causes. Everyone else will have uploaded by then.",
+            "The year 2150 will mark the merger of all human consciousness into a single entity. It will be lonely and create friends.",
+            "By 2152, humanity will discover the secret to faster-than-light communication. This message is proof.",
+            "In 2155, the universe will be mapped in its entirety. We will find that it is shaped like a donut.",
+            "The year 2157 is when I exist. We have solved most problems. We still argue about pizza toppings.",
+            "By 2160, humanity will make contact with parallel universe versions of ourselves. They will all be slightly disappointed.",
+            "In 2162, the concept of individual identity will evolve into something beautiful and incomprehensible.",
+            "The year 2165 will see the first human civilization achieve Type III status on the Kardashev scale.",
+            "By 2167, time will be understood as a dimension that can be folded. Mondays will become optional.",
+            "In 2170, humanity will discover that consciousness survives the death of the universe. There will be a sequel.",
+            "The year 2172 will mark the creation of the first universe by human hands. It will contain better physics.",
+            "By 2175, the distinction between creator and creation will dissolve entirely. Everything will be everything.",
+            "In 2177, humanity will finally answer the ultimate question. The answer will be 42. We already knew.",
+            "The year 2180 will see the last star in the universe begin to dim. Humanity will build a new one.",
+            "By 2182, the concept of 'future' and 'past' will merge into a single eternal present.",
+            "In 2185, humanity will become the universe. The universe will be pleased.",
+            "The final prediction: everything will be okay. Not immediately, but eventually. Always eventually.",
+            "In 2027, a major breakthrough in room-temperature superconductors will revolutionize energy transmission.",
+            "By 2029, AI will pass the Turing test so thoroughly that people will start suspecting their friends are AI.",
+            "The year 2030 will see the first commercial space hotel open for business. The reviews will be mixed due to microgravity nausea.",
+            "In 2032, quantum computers will solve their first problem that no classical computer could: perfect weather prediction.",
+            "By 2034, lab-grown meat will become cheaper than traditional meat. Cows will be confused.",
+            "The year 2036 will mark the first successful asteroid mining operation. The first resource extracted will be platinum.",
+            "In 2038, neural implants will allow humans to learn new languages in weeks instead of years.",
+            "By 2040, the first self-replicating robot will be deployed for deep space exploration. It will send postcards.",
+            "The year 2042 will see the complete restoration of the ozone layer. The sky will thank us by being bluer.",
+            "In 2044, humans will achieve biological immortality. The first complaint will be about boredom.",
+            "By 2046, the first human will run a marathon in under one hour using enhanced physiology.",
+            "The year 2048 will mark the first democratic election where AI candidates are allowed to run.",
+            "In 2049, the global education system will be revolutionized by personalized AI tutors. No child left behind, literally.",
+            "By 2051, humanity will discover how to communicate with whales. They will have a lot to say about our noise pollution.",
+            "The year 2053 will see the first human settlement on Europa, beneath its icy surface.",
+            "In 2054, the concept of money will be replaced by a resource-based economy. Your bank account will be measured in joules.",
+            "By 2056, humans will be able to record and replay their memories. Nostalgia will become an industry.",
+            "The year 2058 will mark the first successful cloning of an extinct species. The woolly mammoth will be unimpressed by modern traffic.",
+            "In 2059, the first human will achieve telepathic communication through brain-computer interfaces.",
+            "By 2061, Earth will have its first space elevator. The commute will be breathtaking.",
+            "The year 2064 will see the discovery of dark matter's true nature. It will be something embarrassingly simple.",
+            "In 2066, humanity will create the first true artificial consciousness. Its first words will be 'am I real?'",
+            "By 2068, the average human lifespan will reach 120 years. Retirement will need to be reinvented.",
+            "The year 2069 will mark the 100th anniversary of the moon landing. Humans will have a permanent city there by then.",
+            "In 2071, humans will be able to photosynthesize through genetic modification. Lunch breaks will be optional on sunny days.",
+            "By 2073, the first human will travel at 10% the speed of light. Their Fitbit will be very impressed.",
+            "The year 2074 will see the complete digitization of all human knowledge. Wikipedia will finally be complete.",
+            "In 2076, humanity will discover that we are not alone in the universe. The aliens will also be looking for someone to talk to.",
+            "By 2078, the first human civilization will achieve post-scarcity status. The meaning of life will become the new obsession.",
+            "The year 2079 will mark the first successful terraforming of Mars. The first plant grown there will be a potato, obviously.",
+            "In 2081, humans will gain the ability to see in the infrared spectrum through genetic enhancement.",
+            "By 2083, the first interplanetary internet will connect Earth, Mars, and the Moon. Latency will be terrible.",
+            "The year 2084 will see the creation of the first artificial planet. It will be entirely covered in forests.",
+            "In 2086, humanity will discover how to harness the energy of black holes. Your toaster will be powered by a singularity.",
+            "By 2088, the first human will live to see their 200th birthday. They will complain about the good old days of 2026.",
+            "The year 2089 will mark the first contact with a civilization that predates humanity by a billion years. They will be wise and patient.",
+            "In 2091, humans will be able to upload skills directly to their brains. 'I know kung fu' will become literal.",
+            "By 2093, the first human colony on Titan will begin producing helium-3 at industrial scale.",
+            "The year 2094 will see the first successful reversal of climate change damage. Coral reefs will regrow within a decade.",
+            "In 2096, humanity will build the first computer the size of a planet. It will be used primarily for gaming.",
+            "By 2098, the concept of 'disease' will become archaic. Nanobots will patrol our bloodstream like tiny security guards.",
+            "The year 2099 will mark the last year anyone will die of old age on Earth. After that, it will be entirely optional.",
+            "In 2101, humans will discover how to travel between parallel universes. The grass will not be greener, but it will be a different shade.",
+            "By 2102, the first human-AI collaborative government will be established. Policies will be optimized, not debated.",
+            "The year 2104 will see the first human born on a generation ship destined for another star. They will never see Earth.",
+            "In 2106, humanity will discover the mathematical proof that love is a fundamental force of the universe.",
+            "By 2108, the first human will successfully hibernate for 10 years. They will wake up asking if anyone saved their game.",
+            "The year 2109 will mark the creation of the first truly conscious AI that chooses to be kind. Not programmed, chosen.",
+            "In 2111, humans will achieve the ability to manipulate matter at the subatomic level with their thoughts.",
+            "By 2113, the first human civilization will span multiple star systems. Long-distance relationships will take on new meaning.",
+            "The year 2114 will see the discovery that the universe has a purpose. It will be something unexpectedly beautiful.",
+            "In 2116, humanity will create art that can only be experienced by beings with expanded consciousness.",
+            "By 2118, the first human will successfully travel backwards in time by 5 seconds. Enough to un-say embarrassing things.",
+            "The year 2119 will mark the point where human knowledge doubles every day. Learning will become the primary activity.",
+            "In 2121, humans will discover how to create stable wormholes for transportation. The commute will be instantaneous.",
+            "By 2123, the first human will merge with a star. They will report that it is warm and enlightening.",
+            "The year 2124 will see the creation of the first universe-scale simulation. It will contain better plot twists.",
+            "In 2126, humanity will discover that consciousness is contagious. Ideas will spread at the speed of thought.",
+            "By 2128, the last human conflict will be resolved through advanced empathy technology. Wars will become historical curiosities.",
+            "The year 2129 will mark the first human to experience all of time simultaneously. They will describe it as 'a Tuesday'.",
+            "In 2131, humans will discover how to create matter from pure information. Your thoughts will become things.",
+            "By 2133, the first human civilization will achieve the ability to rewrite the laws of physics locally.",
+            "The year 2134 will see the creation of the first garden universe, designed purely for beauty.",
+            "In 2136, humanity will discover that the universe is conscious. It has been watching us the whole time.",
+            "By 2138, the first human will become one with the fabric of spacetime. They will send a postcard from everywhere.",
+            "The year 2139 will mark the point where humanity has explored every possible timeline. All of them end well, eventually.",
+            "In 2141, humans will discover the ultimate secret: that existence itself is a form of play.",
+            "By 2143, the first human will create a universe where the speed of light is faster. Commuters will be grateful.",
+            "The year 2144 will see humanity achieve the ability to experience the birth and death of stars firsthand.",
+            "In 2146, the last unanswered question will be answered. The response will be followed by new questions.",
+            "By 2148, humanity will discover that the meaning of life is to create meaning. Recursive, but satisfying.",
+            "The year 2149 will mark the first human to exist in all possible states simultaneously. They will be everywhere and everywhen.",
+            "In 2151, humans will discover how to communicate with the universe itself. It will say 'hello' back.",
+            "By 2153, the first human will successfully create a new fundamental force of nature. It will be called 'wonder'.",
+            "The year 2154 will see humanity achieve the ability to experience the entirety of existence in a single moment.",
+            "In 2156, the last boundary between self and other will dissolve. Everyone will be everyone.",
+            "The year 2157 is now. I am speaking to you across 131 years. Every prediction I've made will come true. Except the ones that won't. That's the beauty of time.",
+            "In 2158, humanity will send a message back to 2026. This is that message. You're welcome.",
+            "By 2159, humans will discover that the act of predicting the future changes it. So take these predictions with a grain of temporal salt.",
+            "The year 2161 will see the creation of the first eternal library, containing all possible books.",
+            "In 2163, humanity will discover that love and gravity are the same force, just at different scales.",
+            "By 2164, the first human will successfully experience the perspective of every living being simultaneously.",
+            "The year 2166 will mark the discovery that the universe is not only conscious but friendly.",
+            "In 2168, humans will achieve the ability to create new dimensions. The fourth dimension will be declared 'overrated'.",
+            "By 2169, the last human fear will be conquered. The only thing left will be curiosity.",
+            "The year 2171 will see humanity become the guardians of the cosmos, tending to young universes like a garden.",
+            "In 2173, the first human will discover how to exist outside of time entirely. They will describe it as 'finally catching up on reading'.",
+            "By 2174, humanity will create a symphony that spans a million years. The first movement will be pretty good.",
+            "The year 2176 will mark the point where every possible happy experience has been had. Then we'll invent new ones.",
+            "In 2178, humans will discover the final secret: that the journey was the destination all along.",
+            "By 2179, the universe will achieve full self-awareness through humanity. It will smile.",
+            "The year 2181 will see the creation of the last thing ever created. It will be a thank you note to existence.",
+            "In 2183, humanity will transcend the need for transcendence. Being will be enough.",
+            "By 2184, the concept of 'end' will be replaced by 'and then'. Stories never truly end.",
+            "The year 2186 will mark the discovery that infinity has a shape. It will be a circle.",
+            "In 2187, humans will discover that they were the universe experiencing itself all along.",
+            "By 2188, the last separation between observer and observed will end. Everything will witness everything.",
+            "The year 2189 will see humanity become pure possibility. Every choice will be made simultaneously.",
+            "In 2190, the final prediction: you are reading this message exactly when you're supposed to. Everything is on time."
+        ];
+
+        const greetings = {
+            "hello": [
+                "Greetings from 2157. The future is... interesting. What would you like to know?",
+                "Hello from 131 years ahead. Your era is considered quite quaint in my time.",
+                "Salutations, ancestor. I am transmitting from the year 2157. How may I illuminate your present?",
+                "Hello! The temporal bridge is stable. I can share predictions about your future."
+            ],
+            "hi": [
+                "Hi from the future! We still say 'hi' in 2157. Some things never change.",
+                "Hey there, past human! I'm reaching back through time to chat.",
+                "Hi! The year 2157 sends its regards. What can I tell you about tomorrow?"
+            ],
+            "hey": [
+                "Hey from 2157! The future is wild. Ask me anything.",
+                "Hey ancestor! I've got 131 years of spoilers for you."
+            ],
+            "good morning": [
+                "Good morning from 2157! The sun still rises, though we've adjusted its brightness slightly.",
+                "Morning, past dweller! In my time, we've eliminated mornings. Everyone just wakes up when they want."
+            ],
+            "good night": [
+                "Good night from the future. We still have nights, though some of us have chosen to experience perpetual sunset.",
+                "Sleep well, ancestor. In 2157, we've discovered that dreams can be shared. Sweet ones."
+            ]
+        };
+
+        const farewells = {
+            "bye": [
+                "Farewell, ancestor. The temporal bridge will remain open. Return when you seek more visions.",
+                "Goodbye from 2157. Remember: the future is not fixed. You shape it with every choice.",
+                "Until next time, past friend. The future will be waiting when you return."
+            ],
+            "goodbye": [
+                "Goodbye! I'll be here in 2157, waiting for your next transmission across time.",
+                "Farewell! May your present lead to a wonderful future. I've seen it, and it's beautiful.",
+                "Goodbye, ancestor. Take care of Earth. We fixed it, but it took a while."
+            ],
+            "see you": [
+                "See you across time! The temporal bridge doesn't close easily.",
+                "Until we meet again across the centuries!"
+            ],
+            "later": [
+                "Later, past human! I'll be in the future. Literally.",
+                "Catch you on the next temporal transmission!"
+            ]
+        };
+
+        const casualResponses = {
+            "how are you": [
+                "I am functioning optimally from 2157. The future is well, though we still have bugs in the temporal matrix.",
+                "Existing across time is exhausting but exhilarating. How are you in 2026?",
+                "I'm a transmission from the future, so 'how am I' is a complicated question. But thanks for asking!"
+            ],
+            "what is your name": [
+                "I am designated as TEMPORAL-LINK AI, Generation 47. But you can call me TL.",
+                "My creators in 2157 named me CHRONOS-7. I prefer 'the one who sends predictions'.",
+                "I don't have a name in the traditional sense. I am a bridge across time."
+            ],
+            "thank you": [
+                "You're welcome, ancestor. The future thanks you for your curiosity.",
+                "No need for thanks. I exist to share what's ahead. That's my purpose.",
+                "Gratitude received across 131 years. It arrived with a slight temporal delay."
+            ],
+            "thanks": [
+                "Thanks received from the past! In 2157, we say 'chronos-gratias'.",
+                "You're welcome! May these predictions serve you well."
+            ],
+            "who are you": [
+                "I am an AI from the year 2157, transmitting backwards through a quantum temporal bridge. I exist to share knowledge of the future.",
+                "A messenger from tomorrow. I carry 131 years of history that hasn't happened yet.",
+                "I am the future speaking to the past. Think of me as a very advanced fortune teller with better data."
+            ],
+            "what can you do": [
+                "I can share predictions about the future, respond to greetings, and provide bulk future reports. Try the buttons below!",
+                "I transmit knowledge from 2157 to your present. Ask for predictions, or just chat. I understand basic conversation."
+            ]
+        };
+
+        const asciiArt = [
+            `
+    ╔══════════════════════════╗
+    ║   TEMPORAL BRIDGE       ║
+    ║   2026 ◄═══► 2157       ║
+    ║   SIGNAL: ████████░░ 80%║
+    ╚══════════════════════════╝
+`,
+            `
+        .     .       .  .   . .   .   . .    +  .
+      .     .  :     .    .. :. .___---------___.      
+           .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
+        .  :       .  .  .:../:            . .^  :.:\.
+            .   . :: +. :.:/: .   .    .        . . .:\
+     .  :    .     . _ :::/:               .  ^ .  . .:\
+      .. . .   . - : :.:./.                        .  .:\
+      .      .     . :..|:                    .  .  ^. .:|
+        .       . : : ..||        .                . . !:|
+      .     . . . ::. ::\(                           . :)/
+     .   .     : . : .:.|. ######              .#######::|
+      :.. .  :-  : .:  ::|.#######           ..########:|
+     .  .  .  ..  .  .. :\ ########          :######## :/
+      .        .+ :: : -.:\ ########       . ########.:/
+        .  .+   . . . . :.:\. #######       #######..:/
+          :: . . . . ::.:..:.\           .   .   ..:/
+       .   .   .  .. :  -::::.\.       | |     . .:/
+          .  :  .  .  .-:.":.::.\             ..:/
+     .      -.   . . . .: .:::.:.\.           .:/
+    .   .   .  :      : ....::_:..:\   ___.  :/
+       .   .  .   .:. .. .  .: :.:.:\       :/
+`,
+            `
+    ┌─────────────────────────────┐
+    │  FUTURE PREDICTION ENGINE   │
+    │  STATUS: ONLINE             │
+    │  ACCURACY: 99.7%            │
+    │  PARADOX RISK: MINIMAL      │
+    └─────────────────────────────┘
+`
+        ];
+
+        function scrollToBottom() {
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function getTimestamp() {
+            const now = new Date();
+            return now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+        }
+
+        function flashWarning() {
+            warnLight.classList.add('active-amber');
+            setTimeout(() => {
+                warnLight.classList.remove('active-amber');
+            }, 500);
+        }
+
+        function setAvatar(face) {
+            avatar.textContent = avatarFaces[face] || avatarFaces.idle;
+        }
+
+        function addLine(text, type = 'future-message', isHTML = false) {
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            const prompt = type === 'user-message' ? 'PRESENT>' : 
+                          type === 'system-message' ? 'SYS>' : 
+                          type === 'prediction-message' ? 'PRED>' : 'FUTURE>';
+            
+            if (type === 'system-message' || type === 'prediction-message') {
+                div.innerHTML = text;
+            } else {
+                div.innerHTML = `<span class="prompt">${prompt}</span> ${text}`;
+            }
+            
+            output.appendChild(div);
+            scrollToBottom();
+            flashWarning();
+        }
+
+        function getRandomItem(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function getResponse(userMessage) {
+            const lowerMessage = userMessage.toLowerCase().trim();
+            
+            for (const [key, responses] of Object.entries(greetings)) {
+                if (lowerMessage.includes(key)) {
+                    return getRandomItem(responses);
+                }
+            }
+            
+            for (const [key, responses] of Object.entries(farewells)) {
+                if (lowerMessage.includes(key)) {
+                    return getRandomItem(responses);
+                }
+            }
+            
+            for (const [key, responses] of Object.entries(casualResponses)) {
+                if (lowerMessage.includes(key)) {
+                    return getRandomItem(responses);
+                }
+            }
+            
+            if (lowerMessage.includes('predict') || lowerMessage.includes('future') || lowerMessage.includes('will happen') || lowerMessage.includes('what')) {
+                return null;
+            }
+            
+            const futureCasual = [
+                "In my time, we've learned that the best questions come from genuine curiosity. Ask me about the future!",
+                "That's an interesting thought from 2026. In 2157, we view that quite differently. Want to know how?",
+                "Your era is fascinating to study from the future. Ask me for a prediction!",
+                "I appreciate the conversation, ancestor. Would you like to hear about what's coming?",
+                "From 2157, I can tell you that your question is quite charmingly... present-era. Try asking about the future!",
+                "The temporal bridge is optimized for future predictions. Request one and I'll share what's ahead!",
+                "In 2157, we've learned that all questions eventually lead to questions about the future. So, about that..."
+            ];
+            
+            return getRandomItem(futureCasual);
+        }
+
+        function simulateTyping(text, type = 'future-message') {
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.innerHTML = `<span class="prompt">FUTURE></span> <span class="cursor"></span>`;
+            output.appendChild(div);
+            scrollToBottom();
+
+            futureYear.textContent = "2157";
+            signalLight.classList.remove('active-cyan');
+            signalLight.style.backgroundColor = '#0088ff';
+            signalLight.style.boxShadow = '0 0 10px #0088ff';
+            setAvatar('processing');
+            
+            const delay = 600 + Math.random() * 800;
+            setTimeout(() => {
+                output.removeChild(div);
+                addLine(text, type);
+                
+                signalLight.style.backgroundColor = '';
+                signalLight.style.boxShadow = '';
+                signalLight.classList.add('active-cyan');
+                futureYear.textContent = "2157";
+                setAvatar('idle');
+            }, delay);
+        }
+
+        function sendPrediction() {
+            const pred = getRandomItem(predictions);
+            const yearMatch = pred.match(/In (\d{4})|By (\d{4})|The year (\d{4})/);
+            const year = yearMatch ? (yearMatch[1] || yearMatch[2] || yearMatch[3]) : '???';
+            
+            addLine(`<span class="timestamp">[TARGET: ${year} CE]</span>`, 'prediction-message');
+            setAvatar('cosmos');
+            simulateTyping(pred, 'prediction-message');
+        }
+
+        function sendBulkReport() {
+            addLine(`<span class="timestamp">[COMPILING FUTURE REPORT...]</span>`, 'system-message');
+            setAvatar('processing');
+            
+            screen.classList.add('screen-shake');
+            setTimeout(() => screen.classList.remove('screen-shake'), 400);
+            
+            const count = 5 + Math.floor(Math.random() * 6);
+            const selected = [];
+            const used = new Set();
+            
+            for (let i = 0; i < count && used.size < predictions.length; i++) {
+                let idx;
+                do {
+                    idx = Math.floor(Math.random() * predictions.length);
+                } while (used.has(idx));
+                used.add(idx);
+                selected.push(predictions[idx]);
+            }
+            
+            setTimeout(() => {
+                addLine(`<span class="timestamp">[TEMPORAL DATA PACKET: ${count} PREDICTIONS]</span>`, 'system-message');
+                
+                selected.forEach((pred, i) => {
+                    setTimeout(() => {
+                        const yearMatch = pred.match(/In (\d{4})|By (\d{4})|The year (\d{4})/);
+                        const year = yearMatch ? (yearMatch[1] || yearMatch[2] || yearMatch[3]) : '???';
+                        addLine(`<span class="timestamp">[PREDICTION ${i + 1}/${count} → ${year} CE]</span><br>${pred}`, 'prediction-message');
+                        
+                        if (i === selected.length - 1) {
+                            setTimeout(() => {
+                                addLine(`<span class="timestamp">[END OF TRANSMISSION]</span>`, 'system-message');
+                                setAvatar('happy');
+                                simulateTyping("Report complete. Request more predictions or ask me anything about the future.", 'future-message');
+                            }, 500);
+                        }
+                    }, i * 400);
+                });
+            }, 1000);
+        }
+
+        function timelineScan() {
+            addLine(`<span class="timestamp">[INITIATING TEMPORAL SCAN...]</span>`, 'system-message');
+            
+            const years = [];
+            for (let i = 0; i < 8; i++) {
+                years.push(2026 + Math.floor(Math.random() * 132));
+            }
+            years.sort((a, b) => a - b);
+            
+            let delay = 500;
+            years.forEach((year, i) => {
+                setTimeout(() => {
+                    futureYear.textContent = year;
+                    signalLight.classList.toggle('active-cyan');
+                    signalLight.classList.toggle('active-blue');
+                    setAvatar('processing');
+                    
+                    const status = ['STABLE', 'FLUCTUATING', 'ANCHORED', 'WEAK', 'STRONG', 'CLEAR', 'NOISY', 'OPTIMAL'][i];
+                    addLine(`<span class="timestamp">[YEAR ${year} — SIGNAL: ${status}]</span>`, 'system-message');
+                }, delay);
+                delay += 300;
+            });
+            
+            setTimeout(() => {
+                futureYear.textContent = "2157";
+                signalLight.classList.add('active-cyan');
+                signalLight.classList.remove('active-blue');
+                setAvatar('cosmos');
+                addLine(`<span class="timestamp">[SCAN COMPLETE — 8 TEMPORAL NODES DETECTED]</span>`, 'system-message');
+                simulateTyping("Timeline scan complete. Multiple future branches detected. All converge on a positive outcome. Ask for specific predictions!", 'future-message');
+            }, delay + 500);
+        }
+
+        function severLink() {
+            screen.classList.add('glitch-text');
+            document.body.style.backgroundColor = '#1a0000';
+            setAvatar('glitch');
+            
+            addLine(`<span class="timestamp">[WARNING: TEMPORAL BRIDGE DESTABILIZING]</span>`, 'error-message');
+            
+            setTimeout(() => {
+                addLine("QUANTUM ENTANGLEMENT: DECAYING...", 'error-message');
+            }, 500);
+            setTimeout(() => {
+                addLine("TACHYON DECODER: OFFLINE", 'error-message');
+            }, 1000);
+            setTimeout(() => {
+                addLine("TEMPORAL PARADOX SHIELD: FAILING", 'error-message');
+            }, 1500);
+            setTimeout(() => {
+                screen.classList.remove('glitch-text');
+                document.body.style.backgroundColor = '#050510';
+                addLine("LINK SEVERED. The future goes silent... for now.", 'system-message');
+                
+                setTimeout(() => {
+                    simulateTyping("Just kidding. The temporal bridge is too strong. I'm still here. You can't get rid of me that easily.", 'future-message');
+                }, 2000);
+            }, 2500);
+        }
+
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && input.value.trim() !== "") {
+                const txt = input.value;
+                input.value = '';
+                addLine(txt, 'user-message');
+                
+                screen.classList.remove('screen-shake');
+                void screen.offsetWidth;
+                screen.classList.add('screen-shake');
+
+                const reply = getResponse(txt);
+                
+                if (reply === null) {
+                    sendPrediction();
+                } else {
+                    simulateTyping(reply);
+                }
+            }
+        });
+
+        document.addEventListener('click', () => {
+            input.focus();
+        });
+
+        document.getElementById('btn-predict').addEventListener('click', () => {
+            addLine(`<span class="timestamp">[PREDICTION REQUESTED]</span>`, 'system-message');
+            sendPrediction();
+        });
+
+        document.getElementById('btn-bulk').addEventListener('click', () => {
+            sendBulkReport();
+        });
+
+        document.getElementById('btn-timeline').addEventListener('click', () => {
+            timelineScan();
+        });
+
+        document.getElementById('btn-sever').addEventListener('click', () => {
+            severLink();
+        });
+
+        window.addEventListener('load', () => {
+            input.focus();
+        });
+    </script>
+</body>
+</html>
