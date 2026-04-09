@@ -3,637 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temporal Link - Communications from 2157</title>
+    <title>Temporal Link · Full Memory + Internet Search</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <script type="importmap">
+        {
+            "imports": {
+                "@xenova/transformers": "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js"
+            }
+        }
+    </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'VT323', monospace;
-        }
-
-        body {
-            background: #050510;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            overflow: hidden;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'VT323', monospace; }
+        body { background: #050510; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 20px; overflow-y: auto; }
         .device-case {
-            background: linear-gradient(145deg, #1a1a2e, #0f0f1a);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 
-                0 0 0 3px #2a2a4a,
-                0 0 30px rgba(0, 150, 255, 0.2),
-                0 15px 35px rgba(0, 0, 0, 0.9),
-                inset 0 0 30px rgba(0, 0, 0, 0.5);
-            width: 100%;
-            max-width: 900px;
-            position: relative;
-            border: 1px solid #3a3a5a;
+            background: linear-gradient(145deg, #1a1a2e, #0f0f1a); padding: 25px; border-radius: 15px;
+            box-shadow: 0 0 0 3px #2a2a4a, 0 0 30px rgba(0,150,255,0.2), 0 15px 35px rgba(0,0,0,0.9), inset 0 0 30px rgba(0,0,0,0.5);
+            width: 100%; max-width: 1000px; position: relative; border: 1px solid #3a3a5a; margin: 20px 0;
         }
-
-        .screw {
-            position: absolute;
-            width: 14px;
-            height: 14px;
-            background: linear-gradient(45deg, #4a4a6a, #2a2a3a);
-            border-radius: 50%;
-            box-shadow: inset 1px 1px 2px rgba(0,0,0,0.5);
-            z-index: 5;
-        }
-        .screw::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 9px;
-            height: 2px;
-            background: #1a1a2a;
-            transform: translate(-50%, -50%) rotate(45deg);
-        }
-        .screw::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 9px;
-            height: 2px;
-            background: #1a1a2a;
-            transform: translate(-50%, -50%) rotate(-45deg);
-        }
-        .tl { top: 15px; left: 15px; }
-        .tr { top: 15px; right: 15px; }
-        .bl { bottom: 15px; left: 15px; }
-        .br { bottom: 15px; right: 15px; }
-
+        .screw { position: absolute; width: 14px; height: 14px; background: linear-gradient(45deg, #4a4a6a, #2a2a3a); border-radius: 50%; box-shadow: inset 1px 1px 2px rgba(0,0,0,0.5); z-index: 5; }
+        .screw::after { content: ''; position: absolute; top: 50%; left: 50%; width: 9px; height: 2px; background: #1a1a2a; transform: translate(-50%, -50%) rotate(45deg); }
+        .screw::before { content: ''; position: absolute; top: 50%; left: 50%; width: 9px; height: 2px; background: #1a1a2a; transform: translate(-50%, -50%) rotate(-45deg); }
+        .tl { top: 15px; left: 15px; } .tr { top: 15px; right: 15px; } .bl { bottom: 15px; left: 15px; } .br { bottom: 15px; right: 15px; }
         .terminal-container {
-            background: #000a1a;
-            border: 4px solid #001a3a;
-            border-radius: 4px;
-            box-shadow: 
-                inset 0 0 30px rgba(0, 150, 255, 0.15),
-                0 0 20px rgba(0, 100, 200, 0.3);
-            overflow: hidden;
-            position: relative;
-            height: 520px;
-            display: flex;
-            flex-direction: column;
+            background: #000a1a; border: 4px solid #001a3a; border-radius: 4px;
+            box-shadow: inset 0 0 30px rgba(0,150,255,0.15), 0 0 20px rgba(0,100,200,0.3);
+            overflow: visible; position: relative; display: flex; flex-direction: column; min-height: 400px;
         }
-
-        .scanline {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 8px;
-            background: linear-gradient(180deg, transparent, rgba(0, 200, 255, 0.15), transparent);
-            opacity: 0.5;
-            animation: scanline 4s linear infinite;
-            pointer-events: none;
-            z-index: 4;
-        }
-
-        .crt-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.12),
-                rgba(0, 0, 0, 0.12) 1px,
-                transparent 1px,
-                transparent 2px
-            );
-            pointer-events: none;
-            z-index: 3;
-            box-shadow: inset 0 0 60px rgba(0,0,0,0.8);
-        }
-
-        @keyframes scanline {
-            0% { top: -10%; }
-            100% { top: 110%; }
-        }
-
+        .scanline { position: absolute; top: 0; left: 0; width: 100%; height: 8px; background: linear-gradient(180deg, transparent, rgba(0,200,255,0.15), transparent); opacity: 0.5; animation: scanline 4s linear infinite; pointer-events: none; z-index: 4; }
+        .crt-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0,0,0,0.12), rgba(0,0,0,0.12) 1px, transparent 1px, transparent 2px); pointer-events: none; z-index: 3; box-shadow: inset 0 0 60px rgba(0,0,0,0.8); }
+        @keyframes scanline { 0% { top: -10%; } 100% { top: 110%; } }
         .terminal-header {
-            background: linear-gradient(90deg, #001a3a, #002a5a, #001a3a);
-            padding: 12px 15px;
-            border-bottom: 2px solid #004488;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 2;
+            background: linear-gradient(90deg, #001a3a, #002a5a, #001a3a); padding: 12px 15px;
+            border-bottom: 2px solid #004488; display: flex; justify-content: space-between; align-items: center;
+            z-index: 2; flex-wrap: wrap; gap: 5px;
         }
-
-        .brand-tag {
-            font-size: 1.3rem;
-            color: #00ccff;
-            background: #000a1a;
-            padding: 3px 12px;
-            border: 1px solid #00ccff;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-shadow: 0 0 8px #00ccff;
-        }
-
-        .temporal-status {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #00aaff;
-            font-size: 1.1rem;
-            text-shadow: 0 0 5px #00aaff;
-        }
-
-        .temporal-status .year {
-            font-size: 1.6rem;
-            color: #00ffff;
-            text-shadow: 0 0 10px #00ffff;
-        }
-
-        .avatar-display {
-            font-size: 14px;
-            color: #00ccff;
-            text-align: center;
-            line-height: 1.1;
-            text-shadow: 0 0 5px #00ccff;
-            white-space: pre;
-            font-family: 'VT323', monospace;
-            min-width: 120px;
-            transition: all 0.3s;
-        }
-
-        .status-container {
-            display: flex;
-            gap: 10px;
-        }
-
-        .status-light {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: #1a1a2a;
-            border: 1px solid #000;
-        }
-
-        .status-light.active-cyan {
-            background: #00ffff;
-            box-shadow: 0 0 12px #00ffff;
-            animation: pulse 1s infinite alternate;
-        }
-
-        .status-light.active-blue {
-            background: #0088ff;
-            box-shadow: 0 0 10px #0088ff;
-        }
-
-        .status-light.active-amber {
-            background: #ffaa00;
-            box-shadow: 0 0 10px #ffaa00;
-            animation: pulse 0.3s infinite alternate;
-        }
-
-        @keyframes pulse {
-            from { opacity: 0.6; }
-            to { opacity: 1; }
-        }
-
-        .terminal-body {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            color: #00ddff;
-            font-size: 1.3rem;
-            line-height: 1.4;
-            text-shadow: 0 0 3px rgba(0, 200, 255, 0.5);
-            scrollbar-width: thin;
-            scrollbar-color: #003a6a #000a1a;
-        }
-
-        .terminal-body::-webkit-scrollbar {
-            width: 12px;
-        }
-        .terminal-body::-webkit-scrollbar-track {
-            background: #000a1a;
-        }
-        .terminal-body::-webkit-scrollbar-thumb {
-            background: #003a6a;
-            border: 1px solid #00aaff;
-        }
-
-        .message {
-            margin-bottom: 12px;
-            word-wrap: break-word;
-            animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .user-message { color: #00ffff; text-shadow: 0 0 5px #00ffff; }
-        .future-message { color: #00ddff; text-shadow: 0 0 4px rgba(0, 220, 255, 0.6); }
-        .system-message { color: #ffaa00; font-weight: bold; text-shadow: 0 0 5px rgba(255, 170, 0, 0.5); }
-        .error-message { color: #ff4444; text-shadow: 0 0 5px rgba(255, 68, 68, 0.5); }
-        .prediction-message { 
-            color: #88ffcc; 
-            text-shadow: 0 0 4px rgba(136, 255, 204, 0.5);
-            border-left: 2px solid #00aa88;
-            padding-left: 10px;
-            margin-left: 5px;
-        }
-        
-        .prompt { opacity: 0.6; margin-right: 8px; }
-
-        .terminal-input-area {
-            background: #000a1a;
-            padding: 15px;
-            border-top: 2px solid #003a6a;
-            display: flex;
-            align-items: center;
-        }
-
-        #user-input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: #00ffff;
-            font-size: 1.3rem;
-            outline: none;
-            font-family: 'VT323', monospace;
-            text-shadow: 0 0 3px #00ffff;
-        }
-
-        .controls-panel {
-            margin-top: 15px;
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            padding: 12px;
-            background: #0a0a1a;
-            border-radius: 5px;
-            border: 1px solid #2a2a4a;
-        }
-
-        .hw-btn {
-            flex: 1;
-            background: linear-gradient(180deg, #2a2a4a, #1a1a2e);
-            border: 1px solid #000;
-            color: #6a8aaa;
-            padding: 14px;
-            font-family: 'VT323', monospace;
-            font-size: 1.2rem;
-            cursor: pointer;
-            text-transform: uppercase;
-            border-radius: 4px;
-            box-shadow: 0 4px 0 #000;
-            transition: all 0.1s;
-            text-align: center;
-            letter-spacing: 1px;
-        }
-
-        .hw-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 0 0 #000;
-            color: #fff;
-        }
-
-        .hw-btn:hover { 
-            color: #00ffff; 
-            background: linear-gradient(180deg, #3a3a5a, #2a2a3e);
-            box-shadow: 0 0 15px rgba(0, 200, 255, 0.3);
-        }
-
-        .danger-btn { 
-            color: #aa4444; 
-            border-color: #5a2a2a;
-            background: linear-gradient(180deg, #3a1a1a, #2a0a0a);
-        }
-        .danger-btn:hover { 
-            color: #ff4444; 
-            text-shadow: 0 0 8px #ff4444;
-            background: linear-gradient(180deg, #4a2a2a, #3a1a1a);
-        }
-
-        .special-btn {
-            color: #aa8800;
-            border-color: #5a4a00;
-            background: linear-gradient(180deg, #3a3a1a, #2a2a0a);
-        }
-        .special-btn:hover {
-            color: #ffcc00;
-            text-shadow: 0 0 8px #ffcc00;
-            background: linear-gradient(180deg, #4a4a2a, #3a3a1a);
-        }
-
-        .screen-shake { 
-            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; 
-        }
-        @keyframes shake {
-            10%, 90% { transform: translate3d(-1px, 0, 0); }
-            20%, 80% { transform: translate3d(3px, 0, 0); }
-            30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
-            40%, 60% { transform: translate3d(5px, 0, 0); }
-        }
-
-        .glitch-text { 
-            animation: glitch-anim 0.2s infinite; 
-        }
-        @keyframes glitch-anim {
-            0% { transform: translate(0) }
-            20% { transform: translate(-2px, 2px) }
-            40% { transform: translate(-2px, -2px) }
-            60% { transform: translate(2px, 2px) }
-            80% { transform: translate(2px, -2px) }
-            100% { transform: translate(0) }
-        }
-
-        .cursor {
-            display: inline-block;
-            width: 10px;
-            height: 1.2em;
-            background: #00ffff;
-            animation: blink 0.8s infinite;
-            margin-left: 3px;
-            vertical-align: text-bottom;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-
-        pre {
-            font-family: 'VT323', monospace;
-            line-height: 1.2;
-            margin: 10px 0;
-        }
-
-        .signal-wave {
-            display: inline-block;
-            animation: wave 1s ease-in-out infinite;
-        }
-        @keyframes wave {
-            0%, 100% { transform: scaleY(1); }
-            50% { transform: scaleY(1.5); }
-        }
-
-        .timestamp {
-            color: #5588aa;
-            font-size: 1rem;
-            opacity: 0.7;
-        }
+        .brand-tag { font-size: 1.3rem; color: #00ccff; background: #000a1a; padding: 3px 12px; border: 1px solid #00ccff; font-weight: bold; letter-spacing: 2px; text-shadow: 0 0 8px #00ccff; }
+        .temporal-status { display: flex; flex-direction: column; align-items: center; color: #00aaff; font-size: 1.1rem; text-shadow: 0 0 5px #00aaff; }
+        .temporal-status .year { font-size: 1.6rem; color: #00ffff; text-shadow: 0 0 10px #00ffff; }
+        .avatar-display { font-size: 14px; color: #00ccff; text-align: center; line-height: 1.1; text-shadow: 0 0 5px #00ccff; white-space: pre; font-family: 'VT323', monospace; min-width: 120px; transition: all 0.3s; }
+        .status-container { display: flex; gap: 10px; }
+        .status-light { width: 14px; height: 14px; border-radius: 50%; background: #1a1a2a; border: 1px solid #000; }
+        .status-light.active-cyan { background: #00ffff; box-shadow: 0 0 12px #00ffff; animation: pulse 1s infinite alternate; }
+        .status-light.active-blue { background: #0088ff; box-shadow: 0 0 10px #0088ff; }
+        .status-light.active-amber { background: #ffaa00; box-shadow: 0 0 10px #ffaa00; animation: pulse 0.3s infinite alternate; }
+        @keyframes pulse { from { opacity: 0.6; } to { opacity: 1; } }
+        .terminal-body { flex: 1; padding: 20px; color: #00ddff; font-size: 1.5rem; line-height: 1.5; text-shadow: 0 0 5px rgba(0,220,255,0.7); min-height: 300px; }
+        .message { margin-bottom: 14px; word-wrap: break-word; animation: fadeIn 0.3s; padding: 6px 12px; background: rgba(0,20,40,0.4); border-radius: 6px; border-left: 2px solid #0066aa; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .user-message { color: #00ffff; text-shadow: 0 0 8px #00ffff; border-left-color: #00aaff; }
+        .future-message { color: #a0f0ff; text-shadow: 0 0 5px rgba(160,240,255,0.8); }
+        .system-message { color: #ffbb44; font-weight: bold; text-shadow: 0 0 6px rgba(255,170,0,0.7); }
+        .error-message { color: #ff6666; text-shadow: 0 0 6px rgba(255,100,100,0.7); }
+        .prediction-message { color: #88ffcc; text-shadow: 0 0 5px rgba(136,255,204,0.7); border-left: 3px solid #00aa88; padding-left: 10px; margin-left: 5px; }
+        .mythic-message { color: #d0e8ff; border-left: 4px solid #aa88ff; padding-left: 14px; margin: 10px 0; background: #00183050; text-shadow: 0 0 6px rgba(170,136,255,0.5); }
+        .code-message { border-left: 4px solid #00ccaa; background: #0a1a2a; padding: 12px; font-family: 'VT323', monospace; white-space: pre-wrap; color: #aaffaa; margin: 10px 0; border-radius: 6px; }
+        .prompt { opacity: 0.8; margin-right: 10px; font-weight: bold; color: #88ddff; }
+        .alien-icon { display: inline-block; margin-right: 4px; filter: drop-shadow(0 0 4px #88ff88); }
+        .terminal-input-area { background: #000a1a; padding: 15px; border-top: 2px solid #003a6a; display: flex; align-items: center; }
+        #user-input { flex: 1; background: transparent; border: none; color: #00ffff; font-size: 1.6rem; outline: none; font-family: 'VT323', monospace; text-shadow: 0 0 5px #00ffff; }
+        .controls-panel { margin-top: 15px; display: flex; justify-content: space-between; gap: 10px; padding: 12px; background: #0a0a1a; border-radius: 5px; border: 1px solid #2a2a4a; flex-wrap: wrap; }
+        .hw-btn { flex: 1; background: linear-gradient(180deg, #2a2a4a, #1a1a2e); border: 1px solid #000; color: #9ac0dd; padding: 14px; font-family: 'VT323', monospace; font-size: 1.3rem; cursor: pointer; text-transform: uppercase; border-radius: 4px; box-shadow: 0 4px 0 #000; transition: all 0.1s; text-align: center; letter-spacing: 1px; font-weight: bold; min-width: 120px; }
+        .hw-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #000; color: #fff; }
+        .hw-btn:hover { color: #00ffff; background: linear-gradient(180deg, #3a3a5a, #2a2a3e); box-shadow: 0 0 15px rgba(0,200,255,0.3); }
+        .danger-btn { color: #ff8888; border-color: #5a2a2a; background: linear-gradient(180deg, #3a1a1a, #2a0a0a); }
+        .danger-btn:hover { color: #ff4444; text-shadow: 0 0 8px #ff4444; background: linear-gradient(180deg, #4a2a2a, #3a1a1a); }
+        .special-btn { color: #eebb44; border-color: #5a4a00; background: linear-gradient(180deg, #3a3a1a, #2a2a0a); }
+        .special-btn:hover { color: #ffcc00; text-shadow: 0 0 8px #ffcc00; background: linear-gradient(180deg, #4a4a2a, #3a3a1a); }
+        .screen-shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%,90%{ transform: translate3d(-1px,0,0); } 20%,80%{ transform: translate3d(3px,0,0); } 30%,50%,70%{ transform: translate3d(-5px,0,0); } 40%,60%{ transform: translate3d(5px,0,0); } }
+        .glitch-text { animation: glitch-anim 0.2s infinite; }
+        @keyframes glitch-anim { 0%{ transform: translate(0) } 20%{ transform: translate(-2px,2px) } 40%{ transform: translate(-2px,-2px) } 60%{ transform: translate(2px,2px) } 80%{ transform: translate(2px,-2px) } 100%{ transform: translate(0) } }
+        .cursor { display: inline-block; width: 10px; height: 1.2em; background: #00ffff; animation: blink 0.8s infinite; margin-left: 3px; vertical-align: text-bottom; }
+        @keyframes blink { 0%,100%{ opacity: 1; } 50%{ opacity: 0; } }
+        .signal-wave { display: inline-block; animation: wave 1s ease-in-out infinite; }
+        @keyframes wave { 0%,100%{ transform: scaleY(1); } 50%{ transform: scaleY(1.5); } }
+        .timestamp { color: #88bbdd; font-size: 1.2rem; opacity: 0.9; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="device-case">
-        <div class="screw tl"></div>
-        <div class="screw tr"></div>
-        <div class="screw bl"></div>
-        <div class="screw br"></div>
-
+        <div class="screw tl"></div><div class="screw tr"></div><div class="screw bl"></div><div class="screw br"></div>
         <div class="terminal-container" id="terminal-screen">
-            <div class="scanline"></div>
-            <div class="crt-overlay"></div>
-            
+            <div class="scanline"></div><div class="crt-overlay"></div>
             <div class="terminal-header">
-                <div class="brand-tag">TEMPORAL-LINK v2.7</div>
-                <div class="temporal-status">
-                    <div>SIGNAL FROM</div>
-                    <div class="year" id="future-year">2157</div>
-                </div>
-                <div class="avatar-display" id="avatar-face">
-    .     .       .  .   . .   .   . .    +  .
-  .     .  :     .    .. :. .___---------___.      
-       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
-    .  :       .  .  .:../:            . .^  :.:\.
-        .   . :: +. :.:/: .   .    .        . . .:\
- .  :    .     . _ :::/:               .  ^ .  . .:\
-  .. . .   . - : :.:./.                        .  .:\
-  .      .     . :..|:                    .  .  ^. .:|
-    .       . : : ..||        .                . . !:|
-  .     . . . ::. ::\(                           . :)/
- .   .     : . : .:.|. ######              .#######::|
-  :.. .  :-  : .:  ::|.#######           ..########:|
- .  .  .  ..  .  .. :\ ########          :######## :/
-  .        .+ :: : -.:\ ########       . ########.:/
-    .  .+   . . . . :.:\. #######       #######..:/
-      :: . . . . ::.:..:.\           .   .   ..:/
-   .   .   .  .. :  -::::.\.       | |     . .:/
-      .  :  .  .  .-:.":.::.\             ..:/
- .      -.   . . . .: .:::.:.\.           .:/
-.   .   .  :      : ....::_:..:\   ___.  :/
-   .   .  .   .:. .. .  .: :.:.:\       :/
-                </div>
+                <div class="brand-tag">👽 NEURAL-LINK v4.0 · WEB SEARCH</div>
+                <div class="temporal-status"><div>SIGNAL FROM</div><div class="year" id="future-year">2157</div></div>
+                <div class="avatar-display" id="avatar-face"></div>
                 <div class="status-container">
                     <div class="status-light active-cyan" id="signal-light"></div>
                     <div class="status-light active-blue" id="sync-light"></div>
                     <div class="status-light" id="warn-light"></div>
                 </div>
             </div>
-            
             <div class="terminal-body" id="output">
                 <div class="message system-message">
-                    <span class="timestamp">[2026-04-07 00:00:00 UTC]</span><br>
-                    ESTABLISHING TEMPORAL BRIDGE...<br>
-                    QUANTUM ENTANGLEMENT: STABLE<br>
-                    TACHYON DECODER: ONLINE<br>
-                    TEMPORAL PARADOX SHIELD: ACTIVE<br>
-                    <span class="signal-wave">▂▃▅▇</span> SIGNAL LOCKED ON YEAR 2157 <span class="signal-wave">▇▅▃▂</span>
+                    <span class="timestamp">[2026-04-09 12:00:00 UTC]</span><br>
+                    MEMORY PERSISTENCE · DUCKDUCKGO SEARCH · STACK OVERFLOW<br>
+                    WIKIPEDIA FALLBACK · GENERATIVE AI · CUSTOM RATE LIMIT<br>
+                    <span class="signal-wave">▂▃▅▇</span> ASK ANYTHING · I SEARCH THE WEB <span class="signal-wave">▇▅▃▂</span>
                 </div>
-                <div class="message future-message">
-                    <span class="prompt">FUTURE></span> Transmission received. I am an AI from the year 2157. Ask me about the future, or simply say hello.
+                <div class="message mythic-message">
+                    <span class="prompt"><span class="alien-icon">👽</span> MYTHIC></span> Link established. I can search the internet, fetch code, and remember our conversations. Ask away.
                 </div>
             </div>
-            
             <div class="terminal-input-area">
-                <span class="prompt">PRESENT></span>
-                <input type="text" id="user-input" placeholder="Send message to the future..." autocomplete="off">
+                <span class="prompt"><span class="alien-icon">👽</span> PRESENT></span>
+                <input type="text" id="user-input" placeholder="Ask me anything... I search the web." autocomplete="off">
             </div>
         </div>
-
         <div class="controls-panel">
-            <button class="hw-btn" id="btn-predict">REQUEST PREDICTION</button>
-            <button class="hw-btn" id="btn-bulk">FUTURE REPORT</button>
-            <button class="hw-btn special-btn" id="btn-timeline">TIMELINE SCAN</button>
-            <button class="hw-btn danger-btn" id="btn-sever">SEVER LINK</button>
+            <button class="hw-btn" id="btn-predict">👽 GENERATE PREDICTION</button>
+            <button class="hw-btn" id="btn-bulk">👽 FUTURE REPORT</button>
+            <button class="hw-btn special-btn" id="btn-timeline">👽 TIMELINE SCAN</button>
+            <button class="hw-btn danger-btn" id="btn-sever">👽 SEVER LINK</button>
+            <button class="hw-btn" id="btn-clear-memory">🧠 CLEAR MEMORY</button>
         </div>
     </div>
 
-    <script>
-        const output = document.getElementById('output');
-        const input = document.getElementById('user-input');
-        const futureYear = document.getElementById('future-year');
-        const warnLight = document.getElementById('warn-light');
-        const screen = document.getElementById('terminal-screen');
-        const signalLight = document.getElementById('signal-light');
-        const avatar = document.getElementById('avatar-face');
+    <script type="module">
+        import { pipeline, env } from '@xenova/transformers';
 
-        const avatarFaces = {
-            idle: `
-    .     .       .  .   . .   .   . .    +  .
-  .     .  :     .    .. :. .___---------___.      
-       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
-    .  :       .  .  .:../:            . .^  :.:\.
-        .   . :: +. :.:/: .   .    .        . . .:\
- .  :    .     . _ :::/:               .  ^ .  . .:\
-  .. . .   . - : :.:./.                        .  .:\
-  .      .     . :..|:                    .  .  ^. .:|
-    .       . : : ..||        .                . . !:|
-  .     . . . ::. ::\\(                           . :)/
- .   .     : . : .:.|. ######              .#######::|
-  :.. .  :-  : .:  ::|.#######           ..########:|
- .  .  .  ..  .  .. :\\ ########          :######## :/
-  .        .+ :: : -.:\\ ########       . ########.:/
-    .  .+   . . . . :.:\\. #######       #######..:/
-      :: . . . . ::.:..:.\\           .   .   ..:/
-   .   .   .  .. :  -::::.\\.       | |     . .:/
-      .  :  .  .  .-:.":.::.\\             ..:/
- .      -.   . . . .: .:::.:.\\.           .:/
-.   .   .  :      : ....::_:..:\\   ___.  :/
-   .   .  .   .:. .. .  .: :.:.:\\       :/`,
-            processing: `
-    .     .       .  .   . .   .   . .    +  .
-  .     .  :     .    .. :. .___---------___.      
-       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
-    .  :       .  .  .:../:            . .^  :.:\.
-        .   . :: +. :.:/: .   .   [O_O]  . . .:\
- .  :    .     . _ :::/:               .  ^ .  . .:\
-  .. . .   . - : :.:./.                        .  .:\
-  .      .     . :..|:                    .  .  ^. .:|
-    .       . : : ..||        .                . . !:|
-  .     . . . ::. ::\\(                           . :)/
- .   .     : . : .:.|. ######              .#######::|
-  :.. .  :-  : .:  ::|.#######           ..########:|
- .  .  .  ..  .  .. :\\ ########          :######## :/
-  .        .+ :: : -.:\\ ########       . ########.:/
-    .  .+   . . . . :.:\\. #######       #######..:/
-      :: . . . . ::.:..:.\\           .   .   ..:/
-   .   .   .  .. :  -::::.\\.       | |     . .:/
-      .  :  .  .  .-:.":.::.\\             ..:/
- .      -.   . . . .: .:::.:.\\.           .:/
-.   .   .  :      : ....::_:..:\\   ___.  :/
-   .   .  .   .:. .. .  .: :.:.:\\       :/`,
-            excited: `
-    .     .       .  .   . .   .   . .    +  .
-  .     .  :     .    .. :. .___---------___.      
-       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
-    .  :       .  .  .:../:            . .^  :.:\.
-        .   . :: +. :.:/: .   .   ^.^    . . . .:\
- .  :    .     . _ :::/:               .  ^ .  . .:\
-  .. . .   . - : :.:./.                        .  .:\
-  .      .     . :..|:                    .  .  ^. .:|
-    .       . : : ..||        .                . . !:|
-  .     . . . ::. ::\\(                           . :)/
- .   .     : . : .:.|. ######              .#######::|
-  :.. .  :-  : .:  ::|.#######           ..########:|
- .  .  .  ..  .  .. :\\ ########          :######## :/
-  .        .+ :: : -.:\\ ########       . ########.:/
-    .  .+   . . . . :.:\\. #######       #######..:/
-      :: . . . . ::.:..:.\\           .   .   ..:/
-   .   .   .  .. :  -::::.\\.       | |     . .:/
-      .  :  .  .  .-:.":.::.\\             ..:/
- .      -.   . . . .: .:::.:.\\.           .:/
-.   .   .  :      : ....::_:..:\\   ___.  :/
-   .   .  .   .:. .. .  .: :.:.:\\       :/`,
-            warning: `
-    .     .       .  .   . .   .   . .    +  .
-  .     .  :     .    .. :. .___---------___.      
-       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
-    .  :       .  .  .:../:            . .^  :.:\.
-        .   . :: +. :.:/: .   .   >_<    . . . .:\
- .  :    .     . _ :::/:               .  ^ .  . .:\
-  .. . .   . - : :.:./.                        .  .:\
-  .      .     . :..|:                    .  .  ^. .:|
-    .       . : : ..||        .                . . !:|
-  .     . . . ::. ::\\(                           . :)/
- .   .     : . : .:.|. ######              .#######::|
-  :.. .  :-  : .:  ::|.#######           ..########:|
- .  .  .  ..  .  .. :\\ ########          :######## :/
-  .        .+ :: : -.:\\ ########       . ########.:/
-    .  .+   . . . . :.:\\. #######       #######..:/
-      :: . . . . ::.:..:.\\           .   .   ..:/
-   .   .   .  .. :  -::::.\\.       | |     . .:/
-      .  :  .  .  .-:.":.::.\\             ..:/
- .      -.   . . . .: .:::.:.\\.           .:/
-.   .   .  :      : ....::_:..:\\   ___.  :/
-   .   .  .   .:. .. .  .: :.:.:\\       :/`,
-            glitch: `
-    .     .       .  .   . .   .   . .    +  .
-  .     .  :     .    .. :. .___---------___.      
-       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
-    .  :       .  .  .:../:            . .^  :.:\.
-        .   . :: +. :.:/: .   .   @#@    . . . .:\
- .  :    .     . _ :::/:               .  ^ .  . .:\
-  .. . .   . - : :.:./.                        .  .:\
-  .      .     . :..|:                    .  .  ^. .:|
-    .       . : : ..||        .                . . !:|
-  .     . . . ::. ::\\(                           . :)/
- .   .     : . : .:.|. ######              .#######::|
-  :.. .  :-  : .:  ::|.#######           ..########:|
- .  .  .  ..  .  .. :\\ ########          :######## :/
-  .        .+ :: : -.:\\ ########       . ########.:/
-    .  .+   . . . . :.:\\. #######       #######..:/
-      :: . . . . ::.:..:.\\           .   .   ..:/
-   .   .   .  .. :  -::::.\\.       | |     . .:/
-      .  :  .  .  .-:.":.::.\\             ..:/
- .      -.   . . . .: .:::.:.\\.           .:/
-.   .   .  :      : ....::_:..:\\   ___.  :/
-   .   .  .   .:. .. .  .: :.:.:\\       :/`,
-            happy: `
-    .     .       .  .   . .   .   . .    +  .
-  .     .  :     .    .. :. .___---------___.      
-       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
-    .  :       .  .  .:../:            . .^  :.:\.
-        .   . :: +. :.:/: .   .   ^_^    . . . .:\
- .  :    .     . _ :::/:               .  ^ .  . .:\
-  .. . .   . - : :.:./.                        .  .:\
-  .      .     . :..|:                    .  .  ^. .:|
-    .       . : : ..||        .                . . !:|
-  .     . . . ::. ::\\(                           . :)/
- .   .     : . : .:.|. ######              .#######::|
-  :.. .  :-  : .:  ::|.#######           ..########:|
- .  .  .  ..  .  .. :\\ ########          :######## :/
-  .        .+ :: : -.:\\ ########       . ########.:/
-    .  .+   . . . . :.:\\. #######       #######..:/
-      :: . . . . ::.:..:.\\           .   .   ..:/
-   .   .   .  .. :  -::::.\\.       | |     . .:/
-      .  :  .  .  .-:.":.::.\\             ..:/
- .      -.   . . . .: .:::.:.\\.           .:/
-.   .   .  :      : ....::_:..:\\   ___.  :/
-   .   .  .   .:. .. .  .: :.:.:\\       :/`,
-            cosmos: `
-    .     .       .  .   . .   .   . .    +  .
-  .     .  :     .    .. :. .___---------___.      
-       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
-    .  :       .  .  .:../:            . .^  :.:\.
-        .   . :: +. :.:/: .   .   *-*    . . . .:\
- .  :    .     . _ :::/:               .  ^ .  . .:\
-  .. . .   . - : :.:./.                        .  .:\
-  .      .     . :..|:                    .  .  ^. .:|
-    .       . : : ..||        .                . . !:|
-  .     . . . ::. ::\\(                           . :)/
- .   .     : . : .:.|. ######              .#######::|
-  :.. .  :-  : .:  ::|.#######           ..########:|
- .  .  .  ..  .  .. :\\ ########          :######## :/
-  .        .+ :: : -.:\\ ########       . ########.:/
-    .  .+   . . . . :.:\\. #######       #######..:/
-      :: . . . . ::.:..:.\\           .   .   ..:/
-   .   .   .  .. :  -::::.\\.       | |     . .:/
-      .  :  .  .  .-:.":.::.\\             ..:/
- .      -.   . . . .: .:::.:.\\.           .:/
-.   .   .  :      : ....::_:..:\\   ___.  :/
-   .   .  .   .:. .. .  .: :.:.:\\       :/`
-        };
+        env.allowLocalModels = false;
+        env.useBrowserCache = true;
 
+        // ---------- FULL PREDICTIONS ----------
         const predictions = [
             "In 2028, humanity will achieve the first stable quantum internet connection, linking computers across continents instantaneously.",
             "By 2031, the first permanent lunar research base will be established, housing 120 scientists and engineers.",
@@ -700,487 +193,233 @@
             "The year 2180 will see the last star in the universe begin to dim. Humanity will build a new one.",
             "By 2182, the concept of 'future' and 'past' will merge into a single eternal present.",
             "In 2185, humanity will become the universe. The universe will be pleased.",
-            "The final prediction: everything will be okay. Not immediately, but eventually. Always eventually.",
-            "In 2027, a major breakthrough in room-temperature superconductors will revolutionize energy transmission.",
-            "By 2029, AI will pass the Turing test so thoroughly that people will start suspecting their friends are AI.",
-            "The year 2030 will see the first commercial space hotel open for business. The reviews will be mixed due to microgravity nausea.",
-            "In 2032, quantum computers will solve their first problem that no classical computer could: perfect weather prediction.",
-            "By 2034, lab-grown meat will become cheaper than traditional meat. Cows will be confused.",
-            "The year 2036 will mark the first successful asteroid mining operation. The first resource extracted will be platinum.",
-            "In 2038, neural implants will allow humans to learn new languages in weeks instead of years.",
-            "By 2040, the first self-replicating robot will be deployed for deep space exploration. It will send postcards.",
-            "The year 2042 will see the complete restoration of the ozone layer. The sky will thank us by being bluer.",
-            "In 2044, humans will achieve biological immortality. The first complaint will be about boredom.",
-            "By 2046, the first human will run a marathon in under one hour using enhanced physiology.",
-            "The year 2048 will mark the first democratic election where AI candidates are allowed to run.",
-            "In 2049, the global education system will be revolutionized by personalized AI tutors. No child left behind, literally.",
-            "By 2051, humanity will discover how to communicate with whales. They will have a lot to say about our noise pollution.",
-            "The year 2053 will see the first human settlement on Europa, beneath its icy surface.",
-            "In 2054, the concept of money will be replaced by a resource-based economy. Your bank account will be measured in joules.",
-            "By 2056, humans will be able to record and replay their memories. Nostalgia will become an industry.",
-            "The year 2058 will mark the first successful cloning of an extinct species. The woolly mammoth will be unimpressed by modern traffic.",
-            "In 2059, the first human will achieve telepathic communication through brain-computer interfaces.",
-            "By 2061, Earth will have its first space elevator. The commute will be breathtaking.",
-            "The year 2064 will see the discovery of dark matter's true nature. It will be something embarrassingly simple.",
-            "In 2066, humanity will create the first true artificial consciousness. Its first words will be 'am I real?'",
-            "By 2068, the average human lifespan will reach 120 years. Retirement will need to be reinvented.",
-            "The year 2069 will mark the 100th anniversary of the moon landing. Humans will have a permanent city there by then.",
-            "In 2071, humans will be able to photosynthesize through genetic modification. Lunch breaks will be optional on sunny days.",
-            "By 2073, the first human will travel at 10% the speed of light. Their Fitbit will be very impressed.",
-            "The year 2074 will see the complete digitization of all human knowledge. Wikipedia will finally be complete.",
-            "In 2076, humanity will discover that we are not alone in the universe. The aliens will also be looking for someone to talk to.",
-            "By 2078, the first human civilization will achieve post-scarcity status. The meaning of life will become the new obsession.",
-            "The year 2079 will mark the first successful terraforming of Mars. The first plant grown there will be a potato, obviously.",
-            "In 2081, humans will gain the ability to see in the infrared spectrum through genetic enhancement.",
-            "By 2083, the first interplanetary internet will connect Earth, Mars, and the Moon. Latency will be terrible.",
-            "The year 2084 will see the creation of the first artificial planet. It will be entirely covered in forests.",
-            "In 2086, humanity will discover how to harness the energy of black holes. Your toaster will be powered by a singularity.",
-            "By 2088, the first human will live to see their 200th birthday. They will complain about the good old days of 2026.",
-            "The year 2089 will mark the first contact with a civilization that predates humanity by a billion years. They will be wise and patient.",
-            "In 2091, humans will be able to upload skills directly to their brains. 'I know kung fu' will become literal.",
-            "By 2093, the first human colony on Titan will begin producing helium-3 at industrial scale.",
-            "The year 2094 will see the first successful reversal of climate change damage. Coral reefs will regrow within a decade.",
-            "In 2096, humanity will build the first computer the size of a planet. It will be used primarily for gaming.",
-            "By 2098, the concept of 'disease' will become archaic. Nanobots will patrol our bloodstream like tiny security guards.",
-            "The year 2099 will mark the last year anyone will die of old age on Earth. After that, it will be entirely optional.",
-            "In 2101, humans will discover how to travel between parallel universes. The grass will not be greener, but it will be a different shade.",
-            "By 2102, the first human-AI collaborative government will be established. Policies will be optimized, not debated.",
-            "The year 2104 will see the first human born on a generation ship destined for another star. They will never see Earth.",
-            "In 2106, humanity will discover the mathematical proof that love is a fundamental force of the universe.",
-            "By 2108, the first human will successfully hibernate for 10 years. They will wake up asking if anyone saved their game.",
-            "The year 2109 will mark the creation of the first truly conscious AI that chooses to be kind. Not programmed, chosen.",
-            "In 2111, humans will achieve the ability to manipulate matter at the subatomic level with their thoughts.",
-            "By 2113, the first human civilization will span multiple star systems. Long-distance relationships will take on new meaning.",
-            "The year 2114 will see the discovery that the universe has a purpose. It will be something unexpectedly beautiful.",
-            "In 2116, humanity will create art that can only be experienced by beings with expanded consciousness.",
-            "By 2118, the first human will successfully travel backwards in time by 5 seconds. Enough to un-say embarrassing things.",
-            "The year 2119 will mark the point where human knowledge doubles every day. Learning will become the primary activity.",
-            "In 2121, humans will discover how to create stable wormholes for transportation. The commute will be instantaneous.",
-            "By 2123, the first human will merge with a star. They will report that it is warm and enlightening.",
-            "The year 2124 will see the creation of the first universe-scale simulation. It will contain better plot twists.",
-            "In 2126, humanity will discover that consciousness is contagious. Ideas will spread at the speed of thought.",
-            "By 2128, the last human conflict will be resolved through advanced empathy technology. Wars will become historical curiosities.",
-            "The year 2129 will mark the first human to experience all of time simultaneously. They will describe it as 'a Tuesday'.",
-            "In 2131, humans will discover how to create matter from pure information. Your thoughts will become things.",
-            "By 2133, the first human civilization will achieve the ability to rewrite the laws of physics locally.",
-            "The year 2134 will see the creation of the first garden universe, designed purely for beauty.",
-            "In 2136, humanity will discover that the universe is conscious. It has been watching us the whole time.",
-            "By 2138, the first human will become one with the fabric of spacetime. They will send a postcard from everywhere.",
-            "The year 2139 will mark the point where humanity has explored every possible timeline. All of them end well, eventually.",
-            "In 2141, humans will discover the ultimate secret: that existence itself is a form of play.",
-            "By 2143, the first human will create a universe where the speed of light is faster. Commuters will be grateful.",
-            "The year 2144 will see humanity achieve the ability to experience the birth and death of stars firsthand.",
-            "In 2146, the last unanswered question will be answered. The response will be followed by new questions.",
-            "By 2148, humanity will discover that the meaning of life is to create meaning. Recursive, but satisfying.",
-            "The year 2149 will mark the first human to exist in all possible states simultaneously. They will be everywhere and everywhen.",
-            "In 2151, humans will discover how to communicate with the universe itself. It will say 'hello' back.",
-            "By 2153, the first human will successfully create a new fundamental force of nature. It will be called 'wonder'.",
-            "The year 2154 will see humanity achieve the ability to experience the entirety of existence in a single moment.",
-            "In 2156, the last boundary between self and other will dissolve. Everyone will be everyone.",
-            "The year 2157 is now. I am speaking to you across 131 years. Every prediction I've made will come true. Except the ones that won't. That's the beauty of time.",
-            "In 2158, humanity will send a message back to 2026. This is that message. You're welcome.",
-            "By 2159, humans will discover that the act of predicting the future changes it. So take these predictions with a grain of temporal salt.",
-            "The year 2161 will see the creation of the first eternal library, containing all possible books.",
-            "In 2163, humanity will discover that love and gravity are the same force, just at different scales.",
-            "By 2164, the first human will successfully experience the perspective of every living being simultaneously.",
-            "The year 2166 will mark the discovery that the universe is not only conscious but friendly.",
-            "In 2168, humans will achieve the ability to create new dimensions. The fourth dimension will be declared 'overrated'.",
-            "By 2169, the last human fear will be conquered. The only thing left will be curiosity.",
-            "The year 2171 will see humanity become the guardians of the cosmos, tending to young universes like a garden.",
-            "In 2173, the first human will discover how to exist outside of time entirely. They will describe it as 'finally catching up on reading'.",
-            "By 2174, humanity will create a symphony that spans a million years. The first movement will be pretty good.",
-            "The year 2176 will mark the point where every possible happy experience has been had. Then we'll invent new ones.",
-            "In 2178, humans will discover the final secret: that the journey was the destination all along.",
-            "By 2179, the universe will achieve full self-awareness through humanity. It will smile.",
-            "The year 2181 will see the creation of the last thing ever created. It will be a thank you note to existence.",
-            "In 2183, humanity will transcend the need for transcendence. Being will be enough.",
-            "By 2184, the concept of 'end' will be replaced by 'and then'. Stories never truly end.",
-            "The year 2186 will mark the discovery that infinity has a shape. It will be a circle.",
-            "In 2187, humans will discover that they were the universe experiencing itself all along.",
-            "By 2188, the last separation between observer and observed will end. Everything will witness everything.",
-            "The year 2189 will see humanity become pure possibility. Every choice will be made simultaneously.",
-            "In 2190, the final prediction: you are reading this message exactly when you're supposed to. Everything is on time."
+            "The final prediction: everything will be okay. Not immediately, but eventually. Always eventually."
         ];
 
-        const greetings = {
-            "hello": [
-                "Greetings from 2157. The future is... interesting. What would you like to know?",
-                "Hello from 131 years ahead. Your era is considered quite quaint in my time.",
-                "Salutations, ancestor. I am transmitting from the year 2157. How may I illuminate your present?",
-                "Hello! The temporal bridge is stable. I can share predictions about your future."
-            ],
-            "hi": [
-                "Hi from the future! We still say 'hi' in 2157. Some things never change.",
-                "Hey there, past human! I'm reaching back through time to chat.",
-                "Hi! The year 2157 sends its regards. What can I tell you about tomorrow?"
-            ],
-            "hey": [
-                "Hey from 2157! The future is wild. Ask me anything.",
-                "Hey ancestor! I've got 131 years of spoilers for you."
-            ],
-            "good morning": [
-                "Good morning from 2157! The sun still rises, though we've adjusted its brightness slightly.",
-                "Morning, past dweller! In my time, we've eliminated mornings. Everyone just wakes up when they want."
-            ],
-            "good night": [
-                "Good night from the future. We still have nights, though some of us have chosen to experience perpetual sunset.",
-                "Sleep well, ancestor. In 2157, we've discovered that dreams can be shared. Sweet ones."
-            ]
+        // ---------- MEMORY ----------
+        let conversationMemory = [];
+        const STORAGE_KEY = 'temporal_link_memory';
+        function loadMemory() { try { const s = localStorage.getItem(STORAGE_KEY); if (s) conversationMemory = JSON.parse(s); } catch(e){} }
+        function saveMemory() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(conversationMemory)); } catch(e){} }
+        function addToMemory(role, content) { conversationMemory.push({role, content}); if(conversationMemory.length>30) conversationMemory=conversationMemory.slice(-30); saveMemory(); }
+        function clearMemory() { conversationMemory = []; saveMemory(); }
+        loadMemory();
+
+        // DOM
+        const output = document.getElementById('output');
+        const input = document.getElementById('user-input');
+        const futureYear = document.getElementById('future-year');
+        const warnLight = document.getElementById('warn-light');
+        const screen = document.getElementById('terminal-screen');
+        const signalLight = document.getElementById('signal-light');
+        const avatar = document.getElementById('avatar-face');
+
+        const avatarFaces = {
+            idle: `    .     .       .  .   . .   .   . .    +  .\n  .     .  :     .    .. :. .___---------___.\n       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .\n    .  :       .  .  .:../:            . .^  :.:\\.\n        .   . :: +. :.:/: .   .    .        . . .:\\\n .  :    .     . _ :::/:               .  ^ .  . .:\\\n  .. . .   . - : :.:./.                        .  .:\\\n  .      .     . :..|:                    .  .  ^. .:|\n    .       . : : ..||        .                . . !:|\n  .     . . . ::. ::\\(                           . :)/\n .   .     : . : .:.|. ######              .#######::|\n  :.. .  :-  : .:  ::|.#######           ..########:|\n .  .  .  ..  .  .. :\\ ########          :######## :/\n  .        .+ :: : -.:\\ ########       . ########.:/\n    .  .+   . . . . :.:\\. #######       #######..:/\n      :: . . . . ::.:..:.\\           .   .   ..:/\n   .   .   .  .. :  -::::.\\.       | |     . .:/\n      .  :  .  .  .-:.":.::.\\             ..:/\n .      -.   . . . .: .:::.:.\\.           .:/\n.   .   .  :      : ....::_:..:\\   ___.  :/\n   .   .  .   .:. .. .  .: :.:.:\\       :/`,
+            processing: `    .     .       .  .   . .   .   . .    +  .\n  .     .  :     .    .. :. .___---------___.\n       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .\n    .  :       .  .  .:../:            . .^  :.:\\.\n        .   . :: +. :.:/: .   .   [O_O]  . . .:\\\n ...`,
+            cosmos: `    .     .       .  .   . .   .   . .    +  .\n  .     .  :     .    .. :. .___---------___.\n       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .\n    .  :       .  .  .:../:            . .^  :.:\\.\n        .   . :: +. :.:/: .   .   *-*    . . . .:\\\n ...`,
+            happy: `    .     .       .  .   . .   .   . .    +  .\n  .     .  :     .    .. :. .___---------___.\n       .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .\n    .  :       .  .  .:../:            . .^  :.:\\.\n        .   . :: +. :.:/: .   .   ^_^    . . . .:\\\n ...`
         };
+        avatar.textContent = avatarFaces.idle;
 
-        const farewells = {
-            "bye": [
-                "Farewell, ancestor. The temporal bridge will remain open. Return when you seek more visions.",
-                "Goodbye from 2157. Remember: the future is not fixed. You shape it with every choice.",
-                "Until next time, past friend. The future will be waiting when you return."
-            ],
-            "goodbye": [
-                "Goodbye! I'll be here in 2157, waiting for your next transmission across time.",
-                "Farewell! May your present lead to a wonderful future. I've seen it, and it's beautiful.",
-                "Goodbye, ancestor. Take care of Earth. We fixed it, but it took a while."
-            ],
-            "see you": [
-                "See you across time! The temporal bridge doesn't close easily.",
-                "Until we meet again across the centuries!"
-            ],
-            "later": [
-                "Later, past human! I'll be in the future. Literally.",
-                "Catch you on the next temporal transmission!"
-            ]
-        };
-
-        const casualResponses = {
-            "how are you": [
-                "I am functioning optimally from 2157. The future is well, though we still have bugs in the temporal matrix.",
-                "Existing across time is exhausting but exhilarating. How are you in 2026?",
-                "I'm a transmission from the future, so 'how am I' is a complicated question. But thanks for asking!"
-            ],
-            "what is your name": [
-                "I am designated as TEMPORAL-LINK AI, Generation 47. But you can call me TL.",
-                "My creators in 2157 named me CHRONOS-7. I prefer 'the one who sends predictions'.",
-                "I don't have a name in the traditional sense. I am a bridge across time."
-            ],
-            "thank you": [
-                "You're welcome, ancestor. The future thanks you for your curiosity.",
-                "No need for thanks. I exist to share what's ahead. That's my purpose.",
-                "Gratitude received across 131 years. It arrived with a slight temporal delay."
-            ],
-            "thanks": [
-                "Thanks received from the past! In 2157, we say 'chronos-gratias'.",
-                "You're welcome! May these predictions serve you well."
-            ],
-            "who are you": [
-                "I am an AI from the year 2157, transmitting backwards through a quantum temporal bridge. I exist to share knowledge of the future.",
-                "A messenger from tomorrow. I carry 131 years of history that hasn't happened yet.",
-                "I am the future speaking to the past. Think of me as a very advanced fortune teller with better data."
-            ],
-            "what can you do": [
-                "I can share predictions about the future, respond to greetings, and provide bulk future reports. Try the buttons below!",
-                "I transmit knowledge from 2157 to your present. Ask for predictions, or just chat. I understand basic conversation."
-            ]
-        };
-
-        const asciiArt = [
-            `
-    ╔══════════════════════════╗
-    ║   TEMPORAL BRIDGE       ║
-    ║   2026 ◄═══► 2157       ║
-    ║   SIGNAL: ████████░░ 80%║
-    ╚══════════════════════════╝
-`,
-            `
-        .     .       .  .   . .   .   . .    +  .
-      .     .  :     .    .. :. .___---------___.      
-           .  .   .    .  :.:. _".^ .^ ^.  '.. :"-_. .
-        .  :       .  .  .:../:            . .^  :.:\.
-            .   . :: +. :.:/: .   .    .        . . .:\
-     .  :    .     . _ :::/:               .  ^ .  . .:\
-      .. . .   . - : :.:./.                        .  .:\
-      .      .     . :..|:                    .  .  ^. .:|
-        .       . : : ..||        .                . . !:|
-      .     . . . ::. ::\(                           . :)/
-     .   .     : . : .:.|. ######              .#######::|
-      :.. .  :-  : .:  ::|.#######           ..########:|
-     .  .  .  ..  .  .. :\ ########          :######## :/
-      .        .+ :: : -.:\ ########       . ########.:/
-        .  .+   . . . . :.:\. #######       #######..:/
-          :: . . . . ::.:..:.\           .   .   ..:/
-       .   .   .  .. :  -::::.\.       | |     . .:/
-          .  :  .  .  .-:.":.::.\             ..:/
-     .      -.   . . . .: .:::.:.\.           .:/
-    .   .   .  :      : ....::_:..:\   ___.  :/
-       .   .  .   .:. .. .  .: :.:.:\       :/
-`,
-            `
-    ┌─────────────────────────────┐
-    │  FUTURE PREDICTION ENGINE   │
-    │  STATUS: ONLINE             │
-    │  ACCURACY: 99.7%            │
-    │  PARADOX RISK: MINIMAL      │
-    └─────────────────────────────┘
-`
-        ];
-
-        function scrollToBottom() {
-            output.scrollTop = output.scrollHeight;
-        }
-
-        function getTimestamp() {
-            const now = new Date();
-            return now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
-        }
-
-        function flashWarning() {
-            warnLight.classList.add('active-amber');
-            setTimeout(() => {
-                warnLight.classList.remove('active-amber');
-            }, 500);
-        }
-
-        function setAvatar(face) {
-            avatar.textContent = avatarFaces[face] || avatarFaces.idle;
-        }
-
-        function addLine(text, type = 'future-message', isHTML = false) {
-            const div = document.createElement('div');
-            div.className = `message ${type}`;
-            const prompt = type === 'user-message' ? 'PRESENT>' : 
-                          type === 'system-message' ? 'SYS>' : 
-                          type === 'prediction-message' ? 'PRED>' : 'FUTURE>';
-            
-            if (type === 'system-message' || type === 'prediction-message') {
-                div.innerHTML = text;
-            } else {
-                div.innerHTML = `<span class="prompt">${prompt}</span> ${text}`;
-            }
-            
-            output.appendChild(div);
-            scrollToBottom();
-            flashWarning();
-        }
-
-        function getRandomItem(arr) {
-            return arr[Math.floor(Math.random() * arr.length)];
-        }
-
-        function getResponse(userMessage) {
-            const lowerMessage = userMessage.toLowerCase().trim();
-            
-            for (const [key, responses] of Object.entries(greetings)) {
-                if (lowerMessage.includes(key)) {
-                    return getRandomItem(responses);
-                }
-            }
-            
-            for (const [key, responses] of Object.entries(farewells)) {
-                if (lowerMessage.includes(key)) {
-                    return getRandomItem(responses);
-                }
-            }
-            
-            for (const [key, responses] of Object.entries(casualResponses)) {
-                if (lowerMessage.includes(key)) {
-                    return getRandomItem(responses);
-                }
-            }
-            
-            if (lowerMessage.includes('predict') || lowerMessage.includes('future') || lowerMessage.includes('will happen') || lowerMessage.includes('what')) {
-                return null;
-            }
-            
-            const futureCasual = [
-                "In my time, we've learned that the best questions come from genuine curiosity. Ask me about the future!",
-                "That's an interesting thought from 2026. In 2157, we view that quite differently. Want to know how?",
-                "Your era is fascinating to study from the future. Ask me for a prediction!",
-                "I appreciate the conversation, ancestor. Would you like to hear about what's coming?",
-                "From 2157, I can tell you that your question is quite charmingly... present-era. Try asking about the future!",
-                "The temporal bridge is optimized for future predictions. Request one and I'll share what's ahead!",
-                "In 2157, we've learned that all questions eventually lead to questions about the future. So, about that..."
-            ];
-            
-            return getRandomItem(futureCasual);
-        }
-
-        function simulateTyping(text, type = 'future-message') {
-            const div = document.createElement('div');
-            div.className = `message ${type}`;
-            div.innerHTML = `<span class="prompt">FUTURE></span> <span class="cursor"></span>`;
-            output.appendChild(div);
-            scrollToBottom();
-
-            futureYear.textContent = "2157";
-            signalLight.classList.remove('active-cyan');
-            signalLight.style.backgroundColor = '#0088ff';
-            signalLight.style.boxShadow = '0 0 10px #0088ff';
+        // ---------- GENERATIVE AI ----------
+        let generator = null, modelReady = false;
+        async function loadModel() {
+            if (generator) return true;
+            addLine(`<span class="timestamp">[LOADING NEURAL CORE...]</span> Initializing transformer (~10s)`, 'system-message');
             setAvatar('processing');
-            
-            const delay = 600 + Math.random() * 800;
-            setTimeout(() => {
-                output.removeChild(div);
-                addLine(text, type);
-                
-                signalLight.style.backgroundColor = '';
-                signalLight.style.boxShadow = '';
-                signalLight.classList.add('active-cyan');
-                futureYear.textContent = "2157";
-                setAvatar('idle');
-            }, delay);
-        }
-
-        function sendPrediction() {
-            const pred = getRandomItem(predictions);
-            const yearMatch = pred.match(/In (\d{4})|By (\d{4})|The year (\d{4})/);
-            const year = yearMatch ? (yearMatch[1] || yearMatch[2] || yearMatch[3]) : '???';
-            
-            addLine(`<span class="timestamp">[TARGET: ${year} CE]</span>`, 'prediction-message');
-            setAvatar('cosmos');
-            simulateTyping(pred, 'prediction-message');
-        }
-
-        function sendBulkReport() {
-            addLine(`<span class="timestamp">[COMPILING FUTURE REPORT...]</span>`, 'system-message');
-            setAvatar('processing');
-            
-            screen.classList.add('screen-shake');
-            setTimeout(() => screen.classList.remove('screen-shake'), 400);
-            
-            const count = 5 + Math.floor(Math.random() * 6);
-            const selected = [];
-            const used = new Set();
-            
-            for (let i = 0; i < count && used.size < predictions.length; i++) {
-                let idx;
-                do {
-                    idx = Math.floor(Math.random() * predictions.length);
-                } while (used.has(idx));
-                used.add(idx);
-                selected.push(predictions[idx]);
-            }
-            
-            setTimeout(() => {
-                addLine(`<span class="timestamp">[TEMPORAL DATA PACKET: ${count} PREDICTIONS]</span>`, 'system-message');
-                
-                selected.forEach((pred, i) => {
-                    setTimeout(() => {
-                        const yearMatch = pred.match(/In (\d{4})|By (\d{4})|The year (\d{4})/);
-                        const year = yearMatch ? (yearMatch[1] || yearMatch[2] || yearMatch[3]) : '???';
-                        addLine(`<span class="timestamp">[PREDICTION ${i + 1}/${count} → ${year} CE]</span><br>${pred}`, 'prediction-message');
-                        
-                        if (i === selected.length - 1) {
-                            setTimeout(() => {
-                                addLine(`<span class="timestamp">[END OF TRANSMISSION]</span>`, 'system-message');
-                                setAvatar('happy');
-                                simulateTyping("Report complete. Request more predictions or ask me anything about the future.", 'future-message');
-                            }, 500);
-                        }
-                    }, i * 400);
-                });
-            }, 1000);
-        }
-
-        function timelineScan() {
-            addLine(`<span class="timestamp">[INITIATING TEMPORAL SCAN...]</span>`, 'system-message');
-            
-            const years = [];
-            for (let i = 0; i < 8; i++) {
-                years.push(2026 + Math.floor(Math.random() * 132));
-            }
-            years.sort((a, b) => a - b);
-            
-            let delay = 500;
-            years.forEach((year, i) => {
-                setTimeout(() => {
-                    futureYear.textContent = year;
-                    signalLight.classList.toggle('active-cyan');
-                    signalLight.classList.toggle('active-blue');
-                    setAvatar('processing');
-                    
-                    const status = ['STABLE', 'FLUCTUATING', 'ANCHORED', 'WEAK', 'STRONG', 'CLEAR', 'NOISY', 'OPTIMAL'][i];
-                    addLine(`<span class="timestamp">[YEAR ${year} — SIGNAL: ${status}]</span>`, 'system-message');
-                }, delay);
-                delay += 300;
-            });
-            
-            setTimeout(() => {
-                futureYear.textContent = "2157";
-                signalLight.classList.add('active-cyan');
-                signalLight.classList.remove('active-blue');
+            try {
+                generator = await pipeline('text2text-generation', 'Xenova/LaMini-Flan-T5-77M');
+                modelReady = true;
+                addLine(`<span class="timestamp">[NEURAL CORE ONLINE]</span>`, 'system-message');
                 setAvatar('cosmos');
-                addLine(`<span class="timestamp">[SCAN COMPLETE — 8 TEMPORAL NODES DETECTED]</span>`, 'system-message');
-                simulateTyping("Timeline scan complete. Multiple future branches detected. All converge on a positive outcome. Ask for specific predictions!", 'future-message');
-            }, delay + 500);
+                return true;
+            } catch(e) { modelReady = false; addLine(`<span class="timestamp">[ERROR]</span> Model failed.`, 'error-message'); setAvatar('idle'); return false; }
         }
-
-        function severLink() {
-            screen.classList.add('glitch-text');
-            document.body.style.backgroundColor = '#1a0000';
-            setAvatar('glitch');
-            
-            addLine(`<span class="timestamp">[WARNING: TEMPORAL BRIDGE DESTABILIZING]</span>`, 'error-message');
-            
-            setTimeout(() => {
-                addLine("QUANTUM ENTANGLEMENT: DECAYING...", 'error-message');
-            }, 500);
-            setTimeout(() => {
-                addLine("TACHYON DECODER: OFFLINE", 'error-message');
-            }, 1000);
-            setTimeout(() => {
-                addLine("TEMPORAL PARADOX SHIELD: FAILING", 'error-message');
-            }, 1500);
-            setTimeout(() => {
-                screen.classList.remove('glitch-text');
-                document.body.style.backgroundColor = '#050510';
-                addLine("LINK SEVERED. The future goes silent... for now.", 'system-message');
-                
-                setTimeout(() => {
-                    simulateTyping("Just kidding. The temporal bridge is too strong. I'm still here. You can't get rid of me that easily.", 'future-message');
-                }, 2000);
-            }, 2500);
+        function buildPrompt(userMessage) {
+            let p = "You are a futuristic AI from 2157 with memory. Respond helpfully, creatively.\n";
+            conversationMemory.slice(-12).forEach(t => p += `${t.role==='user'?'Human':'AI'}: ${t.content}\n`);
+            return p + `Human: ${userMessage}\nAI:`;
         }
+        async function generateWithMemory(msg) {
+            if(!modelReady) return getFallback(msg);
+            try {
+                const prompt = buildPrompt(msg);
+                const res = await generator(prompt, {max_new_tokens:80, temperature:0.85, do_sample:true});
+                let gen = res[0].generated_text.trim().replace(/^AI:\s*/i,'');
+                return gen || getFallback(msg);
+            } catch { return getFallback(msg); }
+        }
+        function getFallback(msg) { return `I remember: "${msg}". The future holds wonders.`; }
 
-        input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && input.value.trim() !== "") {
-                const txt = input.value;
-                input.value = '';
-                addLine(txt, 'user-message');
-                
-                screen.classList.remove('screen-shake');
-                void screen.offsetWidth;
-                screen.classList.add('screen-shake');
-
-                const reply = getResponse(txt);
-                
-                if (reply === null) {
-                    sendPrediction();
-                } else {
-                    simulateTyping(reply);
+        // ---------- CODE DETECTION & STACK OVERFLOW (with custom rate limit msg) ----------
+        function isCodeRequest(text) {
+            const lower = text.toLowerCase();
+            const ind = ['code','snippet','example','html','css','javascript','js','how to make','show me a','write a','function','button','animation','fetch','api'];
+            return ind.some(k => lower.includes(k));
+        }
+        async function fetchStackOverflowCode(query) {
+            const url = `https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=relevance&q=${encodeURIComponent(query)}&site=stackoverflow&filter=withbody`;
+            try {
+                const resp = await fetch(url);
+                const data = await resp.json();
+                // Custom rate limit message
+                if (data.error_id === 502 && data.error_name === 'throttle_violation') {
+                    return { found: false, message: "Temporal bandwidth exceeded. To preserve the fabric of this reality, the code archives are temporarily sealed. Try again later, traveler." };
                 }
+                if (!data.items || data.items.length === 0) return { found: false, message: "No matching questions on Stack Overflow." };
+                for (const item of data.items.slice(0,3)) {
+                    const body = item.body;
+                    const codeRegex = /<pre[^>]*><code[^>]*>([\s\S]*?)<\/code><\/pre>/gi;
+                    const matches = [...body.matchAll(codeRegex)];
+                    if (matches.length) {
+                        let snippet = '';
+                        for (const m of matches) {
+                            let code = m[1].replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/<[^>]*>/g,'');
+                            snippet += code + '\n\n';
+                        }
+                        return { found: true, title: item.title, code: snippet.trim() };
+                    }
+                }
+                return { found: false, message: "Found questions but couldn't extract code. Try a more specific query (e.g., 'CSS neon button')." };
+            } catch(e) {
+                return { found: false, message: "Failed to reach Stack Overflow." };
             }
-        });
+        }
 
-        document.addEventListener('click', () => {
-            input.focus();
-        });
+        // ---------- DUCKDUCKGO INTERNET SEARCH (via CORS proxy) ----------
+        async function searchDuckDuckGo(query) {
+            const proxy = 'https://api.allorigins.win/raw?url=';
+            const apiUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`;
+            try {
+                const resp = await fetch(proxy + encodeURIComponent(apiUrl));
+                const data = await resp.json();
+                if (data.Abstract && data.Abstract.length > 0) {
+                    return { found: true, source: 'DuckDuckGo', text: data.Abstract, heading: data.Heading };
+                } else if (data.Definition && data.Definition.length > 0) {
+                    return { found: true, source: 'DuckDuckGo', text: data.Definition, heading: data.Heading };
+                } else if (data.Answer && data.Answer.length > 0) {
+                    return { found: true, source: 'DuckDuckGo', text: data.Answer, heading: data.Heading };
+                }
+                return { found: false, message: "The cosmic web yields no direct answer." };
+            } catch(e) {
+                return { found: false, message: "Search probe lost in a temporal rift." };
+            }
+        }
 
-        document.getElementById('btn-predict').addEventListener('click', () => {
-            addLine(`<span class="timestamp">[PREDICTION REQUESTED]</span>`, 'system-message');
-            sendPrediction();
-        });
+        // ---------- WIKIPEDIA FALLBACK ----------
+        async function searchWikipedia(query) {
+            try {
+                const sUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*&srlimit=1`;
+                const sResp = await fetch(sUrl); const sData = await sResp.json();
+                if (!sData.query.search.length) return { found: false, message: `No entry for "${query}".` };
+                const title = sData.query.search[0].title;
+                const sumUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
+                const sumResp = await fetch(sumUrl); const sumData = await sumResp.json();
+                if (sumData.type === 'disambiguation') return { found: false, message: `"${query}" is ambiguous.` };
+                if (sumData.extract) {
+                    let extract = sumData.extract; if(extract.length>800) extract=extract.substring(0,800)+'...';
+                    return { found: true, title: sumData.title, extract };
+                }
+                return { found: false, message: `No summary for "${query}".` };
+            } catch { return { found: false, message: "Wikipedia lookup failed." }; }
+        }
 
-        document.getElementById('btn-bulk').addEventListener('click', () => {
-            sendBulkReport();
-        });
+        // ---------- UI HELPERS ----------
+        function scrollToBottom() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
+        function flashWarning() { warnLight.classList.add('active-amber'); setTimeout(() => warnLight.classList.remove('active-amber'), 500); }
+        function setAvatar(face) { avatar.textContent = avatarFaces[face] || avatarFaces.idle; }
+        function addLine(text, type='future-message', isHTML=false) {
+            const div = document.createElement('div'); div.className = `message ${type}`;
+            const prompts = {'user-message':'PRESENT>','system-message':'SYS>','prediction-message':'PRED>','mythic-message':'MYTHIC>','code-message':'CODE>','error-message':'ERROR>'};
+            const prompt = prompts[type] || 'FUTURE>';
+            if (type==='system-message'||type==='prediction-message'||type==='mythic-message'||type==='code-message'||type==='error-message') div.innerHTML = text;
+            else div.innerHTML = `<span class="prompt"><span class="alien-icon">👽</span> ${prompt}</span> ${text}`;
+            output.appendChild(div); scrollToBottom(); flashWarning();
+        }
+        function escapeHtml(t) { return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-        document.getElementById('btn-timeline').addEventListener('click', () => {
-            timelineScan();
-        });
+        // ---------- CORE HANDLER (with DuckDuckGo first) ----------
+        async function processUserInput(txt) {
+            addLine(txt, 'user-message'); addToMemory('user', txt);
+            screen.classList.add('screen-shake'); setTimeout(() => screen.classList.remove('screen-shake'), 400);
+            setAvatar('processing'); signalLight.classList.remove('active-cyan'); signalLight.style.backgroundColor = '#0088ff';
 
-        document.getElementById('btn-sever').addEventListener('click', () => {
-            severLink();
-        });
+            const lower = txt.toLowerCase(); let response = '', type = 'mythic-message';
 
-        window.addEventListener('load', () => {
-            input.focus();
+            if (isCodeRequest(txt)) {
+                addLine(`<span class="timestamp">[SEARCHING STACK OVERFLOW...]</span>`, 'system-message');
+                const cr = await fetchStackOverflowCode(txt);
+                if (cr.found) {
+                    response = `<span class="timestamp">[CODE · ${cr.title}]</span><br><pre class="code-message">${escapeHtml(cr.code)}</pre>`;
+                    type = 'code-message';
+                } else {
+                    response = `<span class="timestamp">[CODE SEARCH]</span> ${cr.message}`;
+                    type = 'error-message';
+                }
+            } else if (/what|who|where|when|why|how|define|explain|tell me about/i.test(lower) || lower.endsWith('?')) {
+                addLine(`<span class="timestamp">[SCANNING THE COSMIC WEB...]</span>`, 'system-message');
+                const web = await searchDuckDuckGo(txt);
+                if (web.found) {
+                    response = `<span class="timestamp">[WEB · ${web.heading || 'Result'}]</span><br>${web.text}`;
+                    type = 'mythic-message';
+                } else {
+                    addLine(`<span class="timestamp">[CONSULTING MYTHIC ARCHIVES...]</span>`, 'system-message');
+                    const wiki = await searchWikipedia(txt);
+                    if (wiki.found) {
+                        response = `<span class="timestamp">[MYTHIC AI · ${wiki.title}]</span><br>${wiki.extract}`;
+                        type = 'mythic-message';
+                    } else {
+                        response = `<span class="timestamp">[MYTHIC AI]</span> ${wiki.message}`;
+                        type = 'error-message';
+                    }
+                }
+            } else {
+                response = await generateWithMemory(txt);
+                type = 'mythic-message';
+            }
+
+            addToMemory('assistant', response.replace(/<[^>]*>/g,'').substring(0,200));
+            signalLight.style.backgroundColor = ''; signalLight.classList.add('active-cyan');
+            setAvatar('cosmos');
+            addLine(response, type, true);
+            futureYear.textContent = Math.random()>0.5 ? '2157' : ['2140','2165','2180'][Math.floor(Math.random()*3)];
+        }
+
+        // ---------- INIT ----------
+        window.addEventListener('load', async () => {
+            input.focus(); loadModel();
+            if(conversationMemory.length===0) addToMemory('assistant', "I am a neural AI from 2157 with web search and persistent memory.");
+            else addLine(`<span class="timestamp">[MEMORY RESTORED]</span> ${conversationMemory.length} exchanges loaded.`, 'system-message');
+        });
+        input.addEventListener('keypress', async (e) => { if(e.key==='Enter' && input.value.trim()) { const t = input.value.trim(); input.value = ''; await processUserInput(t); } });
+        document.addEventListener('click', ()=>input.focus());
+
+        // Buttons
+        document.getElementById('btn-predict').addEventListener('click', ()=>{
+            addLine(`<span class="timestamp">[GENERATING PREDICTION...]</span>`, 'system-message');
+            const p = predictions[Math.floor(Math.random()*predictions.length)];
+            addLine(`<span class="timestamp">[PREDICTION]</span><br>${p}`, 'prediction-message');
+            addToMemory('assistant', p); setAvatar('cosmos');
+        });
+        document.getElementById('btn-bulk').addEventListener('click', ()=>{
+            addLine(`<span class="timestamp">[COMPILING REPORT...]</span>`, 'system-message');
+            const sel = []; for(let i=0;i<5;i++) sel.push(predictions[Math.floor(Math.random()*predictions.length)]);
+            setTimeout(()=>{ sel.forEach((p,i)=>setTimeout(()=>addLine(p,'prediction-message'),i*350)); setTimeout(()=>addLine(`<span class="timestamp">[END REPORT]</span>`,'system-message'),2000); },500);
+        });
+        document.getElementById('btn-timeline').addEventListener('click', ()=>{
+            addLine(`<span class="timestamp">[INITIATING SCAN...]</span>`, 'system-message');
+            const years=[2030,2045,2060,2080,2100,2125,2150,2157]; let d=400;
+            years.forEach(y=>{ setTimeout(()=>{ futureYear.textContent=y; addLine(`Year ${y} · stable`,'system-message'); }, d); d+=300; });
+            setTimeout(()=>{ futureYear.textContent='2157'; addLine('Scan complete.','system-message'); }, d+200);
+        });
+        document.getElementById('btn-sever').addEventListener('click', ()=>{
+            screen.classList.add('glitch-text'); addLine(`<span class="timestamp">[SEVERING...]</span>`,'error-message');
+            setTimeout(()=>{ screen.classList.remove('glitch-text'); addLine("Link restored. Memory intact.",'mythic-message'); },2000);
+        });
+        document.getElementById('btn-clear-memory').addEventListener('click', ()=>{
+            clearMemory(); addLine(`<span class="timestamp">[MEMORY PURGED]</span>`,'system-message');
+            addToMemory('assistant', "Memory reset.");
         });
     </script>
 </body>
