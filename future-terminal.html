@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MYTHIC AI · Neural Terminal + Auto‑Learning</title>
+    <title>MYTHIC AI · Unlimited Memory (IndexedDB)</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <script type="importmap">
         {
@@ -13,6 +13,7 @@
         }
     </script>
     <style>
+        /* All CSS unchanged */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'VT323', monospace; }
         body {
             background: #000;
@@ -199,6 +200,8 @@
         .danger-btn:hover { color: #ff4444; text-shadow: 0 0 8px #ff4444; background: linear-gradient(180deg, #4a2a2a, #3a1a1a); }
         .special-btn { color: #eebb44; border-color: #5a4a00; background: linear-gradient(180deg, #3a3a1a, #2a2a0a); }
         .special-btn:hover { color: #ffcc00; text-shadow: 0 0 8px #ffcc00; background: linear-gradient(180deg, #4a4a2a, #3a3a1a); }
+        .tool-btn { color: #aaddff; border-color: #2a6a9a; background: linear-gradient(180deg, #1a3a5a, #0a2a4a); }
+        .tool-btn:hover { color: #aaffff; text-shadow: 0 0 8px #aaffff; background: linear-gradient(180deg, #2a4a6a, #1a3a5a); }
         .screen-shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
         @keyframes shake { 10%,90%{ transform: translate3d(-1px,0,0); } 20%,80%{ transform: translate3d(3px,0,0); } 30%,50%,70%{ transform: translate3d(-5px,0,0); } 40%,60%{ transform: translate3d(5px,0,0); } }
         .glitch-text { animation: glitch-anim 0.2s infinite; }
@@ -246,7 +249,7 @@
         <div class="terminal-container" id="terminal-screen">
             <div class="scanline"></div><div class="crt-overlay"></div>
             <div class="terminal-header">
-                <div class="brand-tag" id="brand-tag" title="Triple-click for Dev Tools">🧠 MYTHIC AI · LEARNER</div>
+                <div class="brand-tag" id="brand-tag" title="Triple-click for Dev Tools">🧠 MYTHIC AI · UNLIMITED</div>
                 <div class="temporal-status">
                     <div>SIGNAL FROM</div>
                     <div class="year" id="future-year">2157</div>
@@ -262,24 +265,25 @@
             </div>
             <div class="terminal-body" id="output">
                 <div class="message system-message">
-                    <span class="timestamp">[AUTO-LEARNING ACTIVE]</span><br>
-                    ✨ 👍 store fact · 👎 correct · ↑↓ history · [COPY] on code<br>
+                    <span class="timestamp">[INDEXEDDB STORAGE]</span><br>
+                    ✨ Virtually unlimited memory – store millions of facts.<br>
                     <span id="loading-progress"></span>
                 </div>
                 <div class="message mythic-message">
-                    <span class="prompt"><span class="alien-icon">🧠</span> MYTHIC></span> Link established. I learn from feedback. Ask me anything.
+                    <span class="prompt"><span class="alien-icon">🧠</span> MYTHIC></span> Ready. Use tools or let me decide.
                 </div>
             </div>
             <div class="scroll-lock-indicator" id="scroll-lock-badge">🔒 SCROLL LOCK</div>
             <div class="terminal-input-area">
                 <span class="prompt"><span class="alien-icon">👽</span> PRESENT></span>
-                <input type="text" id="user-input" placeholder="Ask..." autocomplete="off">
+                <input type="text" id="user-input" placeholder="Ask anything..." autocomplete="off">
             </div>
         </div>
         <div class="controls-panel">
-            <button class="hw-btn" id="btn-predict">👽 PREDICT</button>
-            <button class="hw-btn" id="btn-bulk">👽 REPORT</button>
-            <button class="hw-btn special-btn" id="btn-timeline">👽 SCAN</button>
+            <button class="hw-btn tool-btn" id="btn-chat" title="Force chat (conversation)">💬 CHAT</button>
+            <button class="hw-btn tool-btn" id="btn-code" title="Force code search">📟 CODE</button>
+            <button class="hw-btn tool-btn" id="btn-web" title="Force web search">🌐 WEB</button>
+            <button class="hw-btn tool-btn" id="btn-memory" title="Recall stored fact">🧠 MEMORY</button>
             <button class="hw-btn danger-btn" id="btn-sever">👽 SEVER</button>
             <button class="hw-btn" id="btn-clear-memory">🧠 CLEAR CHAT</button>
             <button class="hw-btn" id="btn-clear-facts">📚 FORGET</button>
@@ -293,75 +297,122 @@
         env.allowLocalModels = false;
         env.useBrowserCache = true;
 
-        // ---------- PREDICTIONS ----------
-        const predictions = [
-            "In 2028, humanity will achieve the first stable quantum internet connection.",
-            "By 2031, the first permanent lunar research base will be established, housing 120 scientists.",
-            "In 2033, artificial general intelligence will be achieved, but it will immediately request more processing power.",
-            "The year 2035 will see the first successful human brain-computer interface.",
-            "By 2037, fusion energy will become commercially viable, ending the fossil fuel era.",
-            "In 2039, the first generation of genetically modified crops will eliminate world hunger.",
-            "The Mars colony will be founded in 2041 with 500 pioneers.",
-            "By 2043, autonomous vehicles will reduce global traffic accidents by 94%.",
-            "In 2045, the first human will live to see their 150th birthday.",
-            "The year 2047 will mark first contact with extraterrestrial intelligence.",
-            "By 2050, climate change will be reversed through atmospheric carbon capture.",
-            "In 2052, teleportation of inanimate objects will become routine.",
-            "The first underwater city, Atlantis-1, will be completed in 2055.",
-            "By 2057, AI therapists will become more popular than human ones.",
-            "In 2060, humanity will discover evidence of parallel universes.",
-            "The year 2063 will see the first artificial ecosystem on Venus.",
-            "By 2065, nanobots will repair human DNA in real-time.",
-            "In 2067, the first interstellar probe reaches Proxima Centauri.",
-            "The global language will converge by 2070 to a hybrid of English, Mandarin, and emoji.",
-            "By 2072, VR will be indistinguishable from physical reality.",
-            "In 2075, humanity builds the first Dyson swarm around the Sun.",
-            "The year 2077 sees the first upload of a human consciousness.",
-            "By 2080, Earth's population stabilizes at 9 billion.",
-            "In 2082, the first human is born in space.",
-            "The World Government is established in 2085.",
-            "By 2087, teleportation of living organisms is achieved.",
-            "In 2090, oceans are fully cleaned of plastic.",
-            "The year 2092 marks the first human mission to another star system.",
-            "By 2095, AI composes the greatest symphony ever written.",
-            "In 2097, the first time machine prototype is built.",
-            "The year 2100 sees Earth declared a heritage site.",
-            "By 2103, humans have merged with AI indistinguishably.",
-            "In 2105, the first human civilization on another planet declares independence.",
-            "By 2107, death becomes a choice for those who can afford the subscription.",
-            "The year 2110 marks the discovery that the universe is a simulation.",
-            "In 2112, humanity builds a ringworld around Jupiter.",
-            "By 2115, the concept of 'work' is obsolete.",
-            "In 2117, the first alien artifact is found on Mars – a parking ticket.",
-            "The year 2120 sees the first human-AI hybrid species.",
-            "By 2122, Earth is rewilded into a nature preserve.",
-            "In 2125, humanity discovers how to manipulate gravity.",
-            "The year 2127 marks peaceful contact with a Type II civilization.",
-            "By 2130, the solar system has a population of 50 billion.",
-            "In 2132, humans gain the ability to share dreams wirelessly.",
-            "The first galaxy-spanning civilization begins in 2135.",
-            "By 2137, consciousness is proven fundamental.",
-            "In 2140, humanity encounters an existential threat from beyond the galaxy.",
-            "The year 2142 sees artificial universes created in labs.",
-            "By 2145, humans have visited 100 star systems.",
-            "In 2147, the last human dies of natural causes.",
-            "The year 2150 marks the merger of all human consciousness.",
-            "By 2152, FTL communication is discovered – this message is proof.",
-            "In 2155, the universe is mapped and found to be donut-shaped.",
-            "The year 2157 is when I exist. We've solved most problems.",
-            "By 2160, humanity contacts parallel universe versions of themselves.",
-            "In 2162, individual identity evolves into something beautiful.",
-            "The year 2165 sees humanity achieve Type III on the Kardashev scale.",
-            "By 2167, time becomes a foldable dimension. Mondays become optional.",
-            "In 2170, consciousness survives the death of the universe.",
-            "The year 2172 marks the creation of the first universe by human hands.",
-            "By 2175, the distinction between creator and creation dissolves.",
-            "In 2177, the ultimate question is answered: 42.",
-            "The year 2180 sees the last star begin to dim. Humanity builds a new one.",
-            "By 2182, 'future' and 'past' merge into eternal present.",
-            "In 2185, humanity becomes the universe. The universe is pleased.",
-            "The final prediction: everything will be okay. Not immediately, but eventually."
-        ];
+        // ---------- INDEXEDDB STORAGE (UNLIMITED) ----------
+        const DB_NAME = 'mythic_ai_db';
+        const DB_VERSION = 1;
+        const STORE_FACTS = 'learned_facts';
+        const STORE_MEMORY = 'conversation_memory';
+
+        let db = null;
+
+        async function openDatabase() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORE_FACTS)) {
+                        db.createObjectStore(STORE_FACTS);
+                    }
+                    if (!db.objectStoreNames.contains(STORE_MEMORY)) {
+                        db.createObjectStore(STORE_MEMORY);
+                    }
+                };
+            });
+        }
+
+        async function saveFactsToDB(facts) {
+            if (!db) await openDatabase();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_FACTS, 'readwrite');
+                const store = tx.objectStore(STORE_FACTS);
+                store.put(facts, 'facts');
+                tx.oncomplete = resolve;
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        async function loadFactsFromDB() {
+            if (!db) await openDatabase();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_FACTS, 'readonly');
+                const store = tx.objectStore(STORE_FACTS);
+                const request = store.get('facts');
+                request.onsuccess = () => resolve(request.result || {});
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function saveMemoryToDB(memory) {
+            if (!db) await openDatabase();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_MEMORY, 'readwrite');
+                const store = tx.objectStore(STORE_MEMORY);
+                store.put(memory, 'memory');
+                tx.oncomplete = resolve;
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        async function loadMemoryFromDB() {
+            if (!db) await openDatabase();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_MEMORY, 'readonly');
+                const store = tx.objectStore(STORE_MEMORY);
+                const request = store.get('memory');
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function clearFactsInDB() {
+            if (!db) await openDatabase();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_FACTS, 'readwrite');
+                const store = tx.objectStore(STORE_FACTS);
+                store.delete('facts');
+                tx.oncomplete = resolve;
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        async function clearMemoryInDB() {
+            if (!db) await openDatabase();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(STORE_MEMORY, 'readwrite');
+                const store = tx.objectStore(STORE_MEMORY);
+                store.delete('memory');
+                tx.oncomplete = resolve;
+                tx.onerror = () => reject(tx.error);
+            });
+        }
+
+        // Migration from old localStorage (one-time)
+        async function migrateFromLocalStorage() {
+            try {
+                const oldFacts = localStorage.getItem('mythic_facts_v7');
+                const oldMemory = localStorage.getItem('mythic_memory_v5');
+                if (oldFacts) {
+                    learnedFacts = JSON.parse(oldFacts);
+                    await saveFactsToDB(learnedFacts);
+                    localStorage.removeItem('mythic_facts_v7');
+                }
+                if (oldMemory) {
+                    conversationMemory = JSON.parse(oldMemory);
+                    await saveMemoryToDB(conversationMemory);
+                    localStorage.removeItem('mythic_memory_v5');
+                }
+                // Also clear older versions
+                for (let i = 1; i <= 6; i++) localStorage.removeItem(`mythic_facts_v${i}`);
+                for (let i = 1; i <= 4; i++) localStorage.removeItem(`mythic_memory_v${i}`);
+            } catch (e) {
+                console.warn('Migration failed', e);
+            }
+        }
 
         // ---------- STATE ----------
         let learnedFacts = {};
@@ -374,6 +425,7 @@
         let autoScroll = true;
         let colorSchemes = ['cyan', 'green', 'amber'];
         let currentScheme = 0;
+        let forcedIntent = null;
 
         // DOM
         const output = document.getElementById('output');
@@ -424,7 +476,7 @@
             if (!muted) initAudio();
         });
 
-        // Starfield
+        // Starfield (unchanged)
         const canvas = document.getElementById('starfield');
         const ctx = canvas.getContext('2d');
         let stars = [];
@@ -469,18 +521,49 @@
             scrollLockBadge.style.opacity = autoScroll ? '0' : '1';
         });
 
-        // Storage
-        function loadLearnedFacts() {
-            try { const s = localStorage.getItem('mythic_facts_v4'); if(s) learnedFacts = JSON.parse(s); } catch(e){}
+        // Storage wrappers (now async, but we call them and assign to global state)
+        async function loadLearnedFacts() {
+            try {
+                await openDatabase();
+                await migrateFromLocalStorage();
+                const facts = await loadFactsFromDB();
+                learnedFacts = facts || {};
+            } catch (e) {
+                console.warn('IndexedDB failed, falling back to memory', e);
+                learnedFacts = {};
+            }
         }
-        function saveLearnedFacts() { localStorage.setItem('mythic_facts_v4', JSON.stringify(learnedFacts)); }
-        function loadMemory() { try { const s = localStorage.getItem('mythic_memory_v2'); if(s) conversationMemory = JSON.parse(s); } catch(e){} }
-        function saveMemory() { localStorage.setItem('mythic_memory_v2', JSON.stringify(conversationMemory)); }
-        function addToMemory(role, content) { conversationMemory.push({role, content}); if(conversationMemory.length>30) conversationMemory=conversationMemory.slice(-30); saveMemory(); }
-        function clearMemory() { conversationMemory = []; saveMemory(); }
-        loadLearnedFacts(); loadMemory();
+        async function saveLearnedFacts() {
+            try {
+                await saveFactsToDB(learnedFacts);
+            } catch (e) { console.warn('Save facts failed', e); }
+        }
+        async function loadMemory() {
+            try {
+                const mem = await loadMemoryFromDB();
+                conversationMemory = mem || [];
+            } catch (e) { conversationMemory = []; }
+        }
+        async function saveMemory() {
+            try {
+                await saveMemoryToDB(conversationMemory);
+            } catch (e) { console.warn('Save memory failed', e); }
+        }
+        function addToMemory(role, content) {
+            conversationMemory.push({role, content});
+            if(conversationMemory.length > 30) conversationMemory = conversationMemory.slice(-30);
+            saveMemory();
+        }
+        async function clearMemory() {
+            conversationMemory = [];
+            await clearMemoryInDB();
+        }
+        async function clearFacts() {
+            learnedFacts = {};
+            await clearFactsInDB();
+        }
 
-        // Helpers
+        // Helpers (unchanged)
         function scrollToBottom() { if(autoScroll) { output.scrollTop = output.scrollHeight; } }
         function flashWarning() { warnLight.classList.add('active-amber'); setTimeout(() => warnLight.classList.remove('active-amber'), 400); }
         function setAvatar(face) { avatar.textContent = avatarFaces[face] || avatarFaces.idle; }
@@ -553,7 +636,7 @@
             }
         }
 
-        // Web Search
+        // -------- WEB SEARCH (AUTO‑LEARN) --------
         async function searchDuckDuckGo(query) {
             const proxy = 'https://api.allorigins.win/raw?url=';
             const apiUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`;
@@ -566,34 +649,36 @@
                 return { found: false };
             } catch { return { found: false }; }
         }
+
         async function searchWikipedia(query) {
             try {
-                const sUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&origin=*&srlimit=1`;
-                const sResp = await fetch(sUrl); const sData = await sResp.json();
-                if (!sData.query.search.length) return { found: false };
-                const title = sData.query.search[0].title;
-                const sumUrl = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
-                const sumResp = await fetch(sumUrl); const sumData = await sumResp.json();
-                if (sumData.extract) return { found: true, extract: sumData.extract.slice(0, 800), title };
+                const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`;
+                const resp = await fetch(url);
+                const data = await resp.json();
+                if (data.extract) return { found: true, text: data.extract, title: data.title };
                 return { found: false };
             } catch { return { found: false }; }
         }
 
-        // Code search
-        function isCodeRequest(text) {
-            const lower = text.toLowerCase();
-            const keywords = ['code','snippet','html','css','javascript','function','api','fetch','example','how to','write a','button','animation'];
-            return keywords.some(k => lower.includes(k));
+        async function fetchWebAnswer(query) {
+            const wiki = await searchWikipedia(query);
+            if (wiki.found) return { found: true, text: wiki.text, source: wiki.title };
+            const ddg = await searchDuckDuckGo(query);
+            if (ddg.found) return { found: true, text: ddg.text, source: ddg.heading };
+            return { found: false };
         }
+
+        // -------- CODE SEARCH (STACK OVERFLOW) --------
         const localSnippets = {
             "fetch api javascript": `fetch('https://api.example.com/data')\n  .then(response => response.json())\n  .then(data => console.log(data))\n  .catch(err => console.error(err));`,
             "css neon button": `.neon-button {\n  background: transparent;\n  border: 2px solid #0ff;\n  color: #0ff;\n  padding: 10px 20px;\n  text-shadow: 0 0 5px #0ff;\n  box-shadow: 0 0 10px #0ff;\n  transition: 0.3s;\n}\n.neon-button:hover {\n  background: #0ff;\n  color: #000;\n  box-shadow: 0 0 20px #0ff;\n}`,
-            "python hello world": `print("Hello, World!")`
+            "html basic structure": `<!DOCTYPE html>\n<html>\n<head>\n    <title>My Page</title>\n</head>\n<body>\n    <h1>Hello World</h1>\n</body>\n</html>`
         };
+
         async function fetchStackOverflowCode(query) {
             const lowerQ = query.toLowerCase();
             for (const [key, snippet] of Object.entries(localSnippets)) {
-                if (lowerQ.includes(key)) return { found: true, title: "Local Snippet", code: snippet, link: null };
+                if (lowerQ.includes(key)) return { found: true, title: "Built‑in Snippet", code: snippet, link: null };
             }
             const searchUrl = `https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=votes&q=${encodeURIComponent(query)}&site=stackoverflow&filter=withbody&pagesize=3`;
             try {
@@ -616,7 +701,7 @@
             } catch { return { found: false, message: "API error." }; }
         }
 
-        // Generative AI
+        // -------- LOCAL AI (TRANSFORMERS) --------
         async function loadModel() {
             if (generator) return true;
             const progSpan = document.getElementById('loading-progress');
@@ -641,6 +726,7 @@
                 return false;
             }
         }
+
         function getRelevantFacts(query) {
             const lowerQuery = query.toLowerCase();
             const relevant = [];
@@ -651,6 +737,7 @@
             }
             return relevant;
         }
+
         function buildPromptWithFacts(userMessage) {
             const relevantFacts = getRelevantFacts(userMessage);
             let factSection = "";
@@ -661,6 +748,7 @@
             conversationMemory.slice(-12).forEach(t => p += `${t.role==='user'?'Human':'AI'}: ${t.content}\n`);
             return p + `Human: ${userMessage}\nAI:`;
         }
+
         async function generateWithFacts(msg) {
             if (!modelReady) return "I cannot generate right now. Try a web search question.";
             try {
@@ -671,7 +759,44 @@
             } catch { return "Generation error."; }
         }
 
-        // Core processing
+        // -------- AI INTENT CLASSIFIER (ROUTER) --------
+        async function classifyIntent(userMessage) {
+            if (!modelReady) {
+                const lower = userMessage.toLowerCase();
+                if (lower.includes('code') || lower.includes('html') || lower.includes('css') || lower.includes('javascript')) return 'code';
+                if (lower.includes('who') || lower.includes('what') || lower.includes('when') || lower.includes('where') || lower.endsWith('?')) return 'web';
+                return 'chat';
+            }
+
+            const prompt = `You are an intent classifier. Classify the following user message into exactly one of these categories: "chat", "code", "web". Reply with only the category word.
+
+Examples:
+User: "Hello" → chat
+User: "Write a CSS button" → code
+User: "Who is the president?" → web
+User: "What's the weather?" → web
+User: "Tell me a joke" → chat
+User: "How do I center a div?" → code
+User: "What is the meaning of life?" → web
+User: "Good morning" → chat
+User: "Create a JavaScript function to fetch data" → code
+User: "When was Einstein born?" → web
+
+User: "${userMessage}"
+Category:`;
+
+            try {
+                const res = await generator(prompt, { max_new_tokens: 5, temperature: 0.1, do_sample: false });
+                const category = res[0].generated_text.trim().toLowerCase();
+                if (category.includes('code')) return 'code';
+                if (category.includes('web')) return 'web';
+                return 'chat';
+            } catch {
+                return 'chat';
+            }
+        }
+
+        // -------- CORE PROCESSING (WITH FORCED INTENT) --------
         async function processUserInput(txt) {
             addLine(txt, 'user-message');
             addToMemory('user', txt);
@@ -680,52 +805,84 @@
             setAvatar('processing'); signalLight.classList.remove('active-cyan'); signalLight.style.backgroundColor = '#0088ff';
             beep('send');
 
-            const lower = txt.toLowerCase();
             let response = '', type = 'mythic-message';
+            const cleanQuery = txt.toLowerCase().replace(/[?.,!]/g, '').trim();
 
-            if (isCodeRequest(txt)) {
-                addLine(`<span class="timestamp">[SEARCHING STACK OVERFLOW...]</span>`, 'system-message');
-                const cr = await fetchStackOverflowCode(txt);
-                if (cr.found) {
-                    const escapedCode = escapeHtml(cr.code);
-                    let linkHtml = cr.link ? `<br><a href="${cr.link}" target="_blank" class="attribution-link">↗ View on Stack Overflow</a>` : '';
-                    response = `<span class="timestamp">[CODE · ${cr.title}]</span><br><pre class="code-message">${escapedCode}</pre>${linkHtml}`;
-                    type = 'code-message';
+            // 1. Check learned facts first
+            if (learnedFacts[cleanQuery]) {
+                response = learnedFacts[cleanQuery];
+                type = 'mythic-message';
+            }
+            else {
+                let intent = forcedIntent;
+                if (!intent) {
+                    intent = await classifyIntent(txt);
+                    addLine(`<span class="timestamp">[AI ROUTER → ${intent.toUpperCase()}]</span>`, 'system-message');
                 } else {
-                    response = `<span class="timestamp">[CODE SEARCH]</span> ${cr.message}`;
-                    type = 'error-message';
+                    addLine(`<span class="timestamp">[MANUAL TOOL → ${intent.toUpperCase()}]</span>`, 'system-message');
+                    forcedIntent = null;
                 }
-            } else if (/what|who|where|when|why|how|define|explain|tell me about/i.test(lower) || lower.endsWith('?')) {
-                addLine(`<span class="timestamp">[SCANNING THE COSMIC WEB...]</span>`, 'system-message');
-                const web = await searchDuckDuckGo(txt);
-                if (web.found) {
-                    response = `<span class="timestamp">[WEB · ${web.heading || 'Result'}]</span><br>${web.text}`;
-                    type = 'mythic-message';
-                } else {
-                    addLine(`<span class="timestamp">[CONSULTING ARCHIVES...]</span>`, 'system-message');
-                    const wiki = await searchWikipedia(txt);
-                    if (wiki.found) {
-                        response = `<span class="timestamp">[MYTHIC AI · ${wiki.title}]</span><br>${wiki.extract}`;
-                        type = 'mythic-message';
+
+                if (intent === 'code') {
+                    const cr = await fetchStackOverflowCode(txt);
+                    if (cr.found) {
+                        const escapedCode = escapeHtml(cr.code);
+                        let linkHtml = cr.link ? `<br><a href="${cr.link}" target="_blank" class="attribution-link">↗ View on Stack Overflow</a>` : '';
+                        response = `<span class="timestamp">[CODE · ${cr.title}]</span><br><pre class="code-message">${escapedCode}</pre>${linkHtml}`;
+                        type = 'code-message';
                     } else {
-                        response = `<span class="timestamp">[MYTHIC AI]</span> No web answer. Using neural core...`;
+                        response = `<span class="timestamp">[CODE SEARCH]</span> ${cr.message}`;
                         type = 'error-message';
                     }
                 }
-            } else {
-                response = await generateWithFacts(txt);
-                type = 'mythic-message';
+                else if (intent === 'web') {
+                    const web = await fetchWebAnswer(txt);
+                    if (web.found) {
+                        response = `<span class="timestamp">[WEB · ${web.source || 'Result'}]</span><br>${web.text}`;
+                        type = 'mythic-message';
+                        learnedFacts[cleanQuery] = web.text.slice(0, 200);
+                        await saveLearnedFacts();
+                        addLine(`<span class="timestamp">[AUTO‑LEARN]</span> ✅ Answer saved for offline use.`, 'learn-message');
+                    } else {
+                        response = modelReady ? await generateWithFacts(txt) : "I couldn't find an answer online. Try rephrasing.";
+                        if (!modelReady) type = 'error-message';
+                    }
+                }
+                else if (intent === 'memory') {
+                    const facts = Object.entries(learnedFacts);
+                    let bestMatch = null, bestScore = 0;
+                    for (const [key, val] of facts) {
+                        if (cleanQuery.includes(key) || key.includes(cleanQuery)) {
+                            const score = key.length;
+                            if (score > bestScore) { bestScore = score; bestMatch = val; }
+                        }
+                    }
+                    if (bestMatch) {
+                        response = bestMatch;
+                        type = 'mythic-message';
+                        addLine(`<span class="timestamp">[MEMORY RECALL]</span> Found stored fact.`, 'learn-message');
+                    } else {
+                        response = modelReady ? await generateWithFacts(txt) : "No matching memory found. Using chat.";
+                        if (!modelReady) type = 'prediction-message';
+                    }
+                }
+                else { // 'chat'
+                    response = modelReady ? await generateWithFacts(txt) : "Chat mode: I'm still loading.";
+                    if (!modelReady) type = 'prediction-message';
+                }
             }
+
+            if (!response) response = "The cosmic signal is faint. Please try again.";
 
             const cleanAnswer = response.replace(/<[^>]*>/g, '').substring(0, 300);
             addToMemory('assistant', cleanAnswer);
             signalLight.style.backgroundColor = ''; signalLight.classList.add('active-cyan');
             setAvatar('cosmos'); beep('receive');
             addLine(response, type, true, { question: txt, answer: cleanAnswer });
-            futureYear.textContent = Math.random()>0.5 ? '2157' : ['2140','2165','2180'][Math.floor(Math.random()*3)];
+            futureYear.textContent = Math.random() > 0.5 ? '2157' : ['2140','2165','2180'][Math.floor(Math.random()*3)];
         }
 
-        // Command history
+        // -------- EVENT LISTENERS --------
         input.addEventListener('keydown', (e) => {
             if(e.key === 'ArrowUp') {
                 e.preventDefault();
@@ -744,34 +901,40 @@
         });
         document.addEventListener('click', ()=>input.focus());
 
-        // Buttons
-        document.getElementById('btn-predict').addEventListener('click', ()=>{
-            const p = predictions[Math.floor(Math.random()*predictions.length)];
-            addLine(`<span class="timestamp">[PREDICTION]</span><br>${p}`, 'prediction-message', true, { question: 'future prediction', answer: p });
-            addToMemory('assistant', p); beep('receive');
+        // Tool buttons
+        document.getElementById('btn-chat').addEventListener('click', () => {
+            forcedIntent = 'chat';
+            addLine(`<span class="timestamp">[TOOL]</span> Chat mode forced for next query.`, 'system-message');
+            input.focus();
         });
-        document.getElementById('btn-bulk').addEventListener('click', ()=>{
-            addLine(`<span class="timestamp">[COMPILING REPORT...]</span>`, 'system-message');
-            const sel = []; for(let i=0;i<5;i++) sel.push(predictions[Math.floor(Math.random()*predictions.length)]);
-            setTimeout(()=>{ sel.forEach((p,i)=>setTimeout(()=>addLine(p,'prediction-message'),i*350)); setTimeout(()=>addLine(`<span class="timestamp">[END REPORT]</span>`,'system-message'),2000); },500);
+        document.getElementById('btn-code').addEventListener('click', () => {
+            forcedIntent = 'code';
+            addLine(`<span class="timestamp">[TOOL]</span> Code search forced for next query.`, 'system-message');
+            input.focus();
         });
-        document.getElementById('btn-timeline').addEventListener('click', ()=>{
-            addLine(`<span class="timestamp">[INITIATING SCAN...]</span>`, 'system-message');
-            const years=[2030,2045,2060,2080,2100,2125,2150,2157]; let d=400;
-            years.forEach(y=>{ setTimeout(()=>{ futureYear.textContent=y; addLine(`Year ${y} · stable`,'system-message'); }, d); d+=300; });
-            setTimeout(()=>{ futureYear.textContent='2157'; addLine('Scan complete.','system-message'); }, d+200);
+        document.getElementById('btn-web').addEventListener('click', () => {
+            forcedIntent = 'web';
+            addLine(`<span class="timestamp">[TOOL]</span> Web search forced for next query.`, 'system-message');
+            input.focus();
         });
+        document.getElementById('btn-memory').addEventListener('click', () => {
+            forcedIntent = 'memory';
+            addLine(`<span class="timestamp">[TOOL]</span> Memory recall forced for next query.`, 'system-message');
+            input.focus();
+        });
+
         document.getElementById('btn-sever').addEventListener('click', ()=>{
             screen.classList.add('glitch-text'); addLine(`<span class="timestamp">[SEVERING...]</span>`,'error-message');
             setTimeout(()=>{ screen.classList.remove('glitch-text'); addLine("Link restored.",'mythic-message'); },2000);
             beep('error');
         });
-        document.getElementById('btn-clear-memory').addEventListener('click', ()=>{
-            clearMemory(); addLine(`<span class="timestamp">[MEMORY PURGED]</span>`,'system-message');
+        document.getElementById('btn-clear-memory').addEventListener('click', async ()=>{
+            await clearMemory();
+            addLine(`<span class="timestamp">[MEMORY PURGED]</span>`,'system-message');
             addToMemory('assistant', "Memory reset.");
         });
-        document.getElementById('btn-clear-facts').addEventListener('click', ()=>{
-            learnedFacts = {}; saveLearnedFacts();
+        document.getElementById('btn-clear-facts').addEventListener('click', async ()=>{
+            await clearFacts();
             addLine(`<span class="timestamp">[FACTS FORGOTTEN]</span> All learned facts erased.`, 'system-message');
         });
         document.getElementById('btn-color-scheme').addEventListener('click', ()=>{
@@ -782,7 +945,7 @@
             deviceCase.classList.toggle('fullscreen');
         });
 
-        // Dev tools (triple-click brand)
+        // Dev tools (import/export now works with IndexedDB data)
         brandTag.addEventListener('click', (e) => {
             if(e.detail === 3) {
                 const data = { facts: learnedFacts, memory: conversationMemory };
@@ -797,7 +960,8 @@
                         const imp = JSON.parse(inp);
                         learnedFacts = imp.facts || {};
                         conversationMemory = imp.memory || [];
-                        saveLearnedFacts(); saveMemory();
+                        saveLearnedFacts();
+                        saveMemory();
                         location.reload();
                     } catch(e) { alert('Invalid JSON'); }
                 }
@@ -812,13 +976,17 @@
             }
         }, 8000);
 
-        // Init
+        // Init – now async
         window.addEventListener('load', async () => {
             input.focus();
+            await openDatabase();
+            await migrateFromLocalStorage();
+            await loadLearnedFacts();
+            await loadMemory();
             loadModel();
             if(conversationMemory.length) addLine(`<span class="timestamp">[MEMORY]</span> ${conversationMemory.length} exchanges loaded.`, 'system-message');
             if(Object.keys(learnedFacts).length) addLine(`<span class="timestamp">[FACTS]</span> ${Object.keys(learnedFacts).length} facts remembered.`, 'system-message');
-            initAudio(); // prompt user interaction later
+            initAudio();
         });
     </script>
 </body>
