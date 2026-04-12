@@ -377,6 +377,14 @@ How It Works
         }
         #live-clock { font-family: monospace; color: #9cb8d9; }
         #graphStats { font-size: 0.85rem; color: #7dd3fc; }
+        .searching {
+            display: inline-block;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
     </style>
 </head>
 <body>
@@ -386,7 +394,7 @@ How It Works
         <div class="chat-panel" role="region" aria-label="Chat interface">
             <div class="chat-header">
                 <div class="studio-brand" aria-label="Mythic AI Brand">
-                    <span class="logo-icon" aria-hidden="true">��</span>
+                    <span class="logo-icon" aria-hidden="true">🔮</span>
                     <span class="brand-text">MYTHIC AI</span>
                     <span class="model-badge">DUAL MIND · NEURAL</span>
                 </div>
@@ -449,7 +457,6 @@ How It Works
     let db;
     let learnedFacts = {};
     let conversationMemory = [];
-
     const openDB = () => new Promise((resolve, reject) => {
         const request = indexedDB.open(DB_NAME, 1);
         request.onerror = () => reject(request.error);
@@ -579,7 +586,6 @@ How It Works
     function buildNeuralFromFacts() {
         const facts = Object.entries(learnedFacts);
         const neurons = [];
-
         facts.forEach(([key, val], i) => {
             neurons.push({
                 id: `n${i}`,
@@ -589,7 +595,6 @@ How It Works
                 layer: i < 3 ? 0 : i < 6 ? 1 : 2
             });
         });
-
         const synapses = [];
         for (let i = 0; i < neurons.length; i++) {
             for (let j = i + 1; j < neurons.length; j++) {
@@ -597,33 +602,23 @@ How It Works
                 const words2 = neurons[j].key.toLowerCase().split(/\W+/);
                 const overlap = [...words2].filter(w => words1.has(w) && w.length > 2).length;
                 if (overlap) {
-                    synapses.push({
-                        from: neurons[i].id,
-                        to: neurons[j].id,
-                        weight: overlap,
-                        active: false
-                    });
+                    synapses.push({ from: neurons[i].id, to: neurons[j].id, weight: overlap, active: false });
                 }
             }
         }
-
         return { neurons, synapses };
     }
     function drawNeuralNetwork() {
         const wrapper = neuralCanvas.parentElement;
         const w = neuralCanvas.width = wrapper.clientWidth;
         const h = neuralCanvas.height = wrapper.clientHeight;
-
         if (w === 0 || h === 0) {
             requestAnimationFrame(() => setTimeout(drawNeuralNetwork, 50));
             return;
         }
-
         const { neurons, synapses } = buildNeuralFromFacts();
         graphStats.textContent = `neurons: ${neurons.length} · synapses: ${synapses.length}`;
-
         ctx.clearRect(0, 0, w, h);
-
         if (!neurons.length) {
             ctx.fillStyle = '#4a6a8e';
             ctx.font = '16px "Space Grotesk", sans-serif';
@@ -631,24 +626,18 @@ How It Works
             ctx.fillText('🧠 Train the neural network', w / 2, h / 2);
             return;
         }
-
         const padding = 60;
         const layerGap = (w - padding * 2) / 2;
         const layerX = [padding, padding + layerGap, w - padding];
-
         const layerLabels = ['INPUT', 'HIDDEN', 'OUTPUT'];
         ctx.font = '12px "JetBrains Mono", monospace';
-
         for (let l = 0; l < 3; l++) {
             const layerNeurons = neurons.filter(n => n.layer === l);
             if (layerNeurons.length === 0) continue;
-
             ctx.fillStyle = l === 0 ? '#0cf' : l === 1 ? '#a78bfa' : '#22c55e';
             ctx.textAlign = 'center';
             ctx.fillText(layerLabels[l], layerX[l], 25);
-
             const neuronHeight = (h - padding * 2) / layerNeurons.length;
-
             layerNeurons.forEach((neuron, idx) => {
                 const nx = layerX[l];
                 const ny = padding + idx * neuronHeight + neuronHeight / 2;
@@ -657,19 +646,15 @@ How It Works
                 neuron.radius = l === 1 ? 16 : 14;
             });
         }
-
         synapses.forEach(synapse => {
             const fromNeuron = neurons.find(n => n.id === synapse.from);
             const toNeuron = neurons.find(n => n.id === synapse.to);
             if (!fromNeuron || !toNeuron) return;
-
             const isActive = activeNeurons.has(synapse.from) || activeNeurons.has(synapse.to);
             const isHovered = hoveredNeuron && (fromNeuron.id === hoveredNeuron.id || toNeuron.id === hoveredNeuron.id);
-
             ctx.beginPath();
             ctx.moveTo(fromNeuron.x, fromNeuron.y);
             ctx.lineTo(toNeuron.x, toNeuron.y);
-
             if (isActive) {
                 ctx.strokeStyle = `rgba(0, 255, 200, ${0.4 + Math.sin(Date.now() / 100) * 0.2})`;
                 ctx.lineWidth = 2 + synapse.weight;
@@ -682,7 +667,6 @@ How It Works
             }
             ctx.stroke();
         });
-
         if (signalParticles.length > 0) {
             signalParticles.forEach(p => {
                 ctx.beginPath();
@@ -693,7 +677,6 @@ How It Works
                 ctx.fill();
                 ctx.shadowBlur = 0;
             });
-
             signalParticles = signalParticles.filter(p => {
                 const target = neurons.find(n => n.id === p.to);
                 if (!target) return false;
@@ -705,14 +688,11 @@ How It Works
                 return dist > 5;
             });
         }
-
         neurons.forEach(neuron => {
             const isActive = activeNeurons.has(neuron.id);
             const isHovered = hoveredNeuron && neuron.id === hoveredNeuron.id;
-
             ctx.beginPath();
             ctx.arc(neuron.x, neuron.y, neuron.radius, 0, Math.PI * 2);
-
             if (isActive) {
                 ctx.fillStyle = `rgba(0, 255, 200, ${0.6 + Math.sin(Date.now() / 150) * 0.3})`;
                 ctx.shadowColor = '#00ffcc';
@@ -724,7 +704,6 @@ How It Works
             } else {
                 ctx.fillStyle = isHovered ? '#22c55e' : '#166534';
             }
-
             ctx.fill();
             if (isActive || isHovered) {
                 ctx.shadowBlur = 15;
@@ -733,13 +712,11 @@ How It Works
             ctx.lineWidth = 2;
             ctx.stroke();
             ctx.shadowBlur = 0;
-
             ctx.fillStyle = '#e0f2fe';
             ctx.font = '9px "JetBrains Mono", monospace';
             ctx.textAlign = 'center';
             ctx.fillText(neuron.label, neuron.x, neuron.y + neuron.radius + 12);
         });
-
         if (hoveredNeuron) {
             ctx.fillStyle = 'rgba(0, 10, 20, 0.9)';
             ctx.fillRect(10, h - 70, w - 20, 60);
@@ -753,11 +730,8 @@ How It Works
             ctx.fillStyle = '#94a3b8';
             ctx.font = '11px "JetBrains Mono", monospace';
             const lines = hoveredNeuron.value.match(/.{1,50}/g) || [hoveredNeuron.value];
-            lines.slice(0, 2).forEach((line, i) => {
-                ctx.fillText(line, 20, h - 32 + i * 14);
-            });
+            lines.slice(0, 2).forEach((line, i) => { ctx.fillText(line, 20, h - 32 + i * 14); });
         }
-
         requestAnimationFrame(drawNeuralNetwork);
     }
     const refreshNeural = () => { drawNeuralNetwork(); };
@@ -772,7 +746,6 @@ How It Works
             console.error('Primary model error:', e);
             addMessage('⚠️ Primary model failed to load.', 'system');
         }
-
         try {
             addMessage('🟠 Loading Second Mind (GPT-2)...', 'system');
             generator2 = await pipeline('text-generation', 'Xenova/gpt2');
@@ -788,10 +761,9 @@ How It Works
         if (!model1Ready) {
             const lower = message.toLowerCase();
             if (lower.includes('code') || lower.includes('function') || lower.includes('script')) return 'code';
-            if (lower.includes('search') || lower.includes('find') || lower.includes('?') || lower.includes('what is')) return 'web';
+            if (lower.includes('search') || lower.includes('find') || lower.includes('?') || lower.includes('what is') || lower.includes('who is') || lower.includes('how to') || lower.includes('define')) return 'web';
             return 'chat';
         }
-
         const prompt = `Classify: "chat", "code", or "web".\nUser: ${message}\nCategory:`;
         try {
             const result = await generator1(prompt, { max_new_tokens: 5, temperature: 0.1 });
@@ -804,20 +776,62 @@ How It Works
             return 'chat';
         }
     }
-    async function webSearch(query) {
+    async function wikipediaSearch(query) {
+        try {
+            const searchUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=3&format=json&origin=*`;
+            const searchRes = await fetch(searchUrl);
+            const searchData = await searchRes.json();
+            if (!searchData[1] || searchData[1].length === 0) return { found: false };
+            const title = searchData[1][0];
+            const summaryUrl = `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=true&explaintext=true&titles=${encodeURIComponent(title)}&format=json&origin=*`;
+            const summaryRes = await fetch(summaryUrl);
+            const summaryData = await summaryRes.json();
+            const pages = summaryData.query?.pages;
+            if (pages) {
+                const page = Object.values(pages)[0];
+                if (page.extract) {
+                    return {
+                        found: true,
+                        text: page.extract.slice(0, 500),
+                        title: title,
+                        url: `https://en.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`
+                    };
+                }
+            }
+            return { found: false };
+        } catch (e) {
+            console.error('Wikipedia error:', e);
+            return { found: false };
+        }
+    }
+    async function duckDuckGoSearch(query) {
         try {
             const response = await fetch(
                 `https://api.allorigins.win/raw?url=${encodeURIComponent('https://api.duckduckgo.com/?q=' + encodeURIComponent(query) + '&format=json&no_html=1')}`
             );
             const data = await response.json();
-            if (data.Abstract) return { found: true, text: data.Abstract };
+            if (data.Abstract) return { found: true, text: data.Abstract, source: 'DuckDuckGo' };
             if (data.RelatedTopics?.length > 0 && data.RelatedTopics[0]?.Text) {
-                return { found: true, text: data.RelatedTopics[0].Text };
+                return { found: true, text: data.RelatedTopics[0].Text, source: 'DuckDuckGo' };
             }
             return { found: false };
         } catch (e) {
             return { found: false };
         }
+    }
+    async function smartWebSearch(query) {
+        addMessage('<span class="searching">🔍 Searching Wikipedia...</span>', 'system');
+        const wikiResult = await wikipediaSearch(query);
+        if (wikiResult.found) {
+            addMessage(`📚 Found on Wikipedia: ${wikiResult.title}`, 'system');
+            return { ...wikiResult, source: 'Wikipedia' };
+        }
+        addMessage('🔍 Trying DuckDuckGo...', 'system');
+        const ddgResult = await duckDuckGoSearch(query);
+        if (ddgResult.found) {
+            return ddgResult;
+        }
+        return { found: false };
     }
     const codeSnippets = {
         'fetch api': "fetch(url).then(r => r.json()).then(console.log)",
@@ -834,37 +848,26 @@ How It Works
     }
     async function generateResponse(prompt, useDual = dualMindActive) {
         if (!model1Ready) return "Primary mind offline. Please refresh the page.";
-
         try {
             const result1 = await generator1(prompt, { max_new_tokens: 80, temperature: 0.85 });
             let primary = result1[0].generated_text.trim();
-
             if (!useDual || !model2Ready) return primary;
-
             const secondaryPrompt = `Rewrite creatively: ${primary}\nAlternative:`;
             try {
                 const result2 = await generator2(secondaryPrompt, { max_new_tokens: 60, temperature: 0.9 });
                 const secondary = result2[0].generated_text.trim();
-
                 addMessage(`🧠 Primary: ${primary}`, 'assistant', 1);
                 addMessage(`🌀 Second Mind: ${secondary}`, 'assistant', 2);
-
                 return `**Synthesized**: ${primary} (Second mind suggests: ${secondary})`;
-            } catch (e2) {
-                return primary;
-            }
-        } catch (e) {
-            return "Error generating response.";
-        }
+            } catch (e2) { return primary; }
+        } catch (e) { return "Error generating response."; }
     }
     async function processInput(text) {
         addMessage(text, 'user');
         conversationMemory.push({ role: 'user', content: text });
         await saveMemory(conversationMemory);
         beep('send');
-
         const cleanKey = text.toLowerCase().replace(/[?.,!]/g, '').trim();
-
         if (learnedFacts[cleanKey]) {
             addMessage(learnedFacts[cleanKey], 'assistant', 1);
             const keys = Object.keys(learnedFacts);
@@ -876,13 +879,10 @@ How It Works
             beep('receive');
             return;
         }
-
         let intent = forcedIntent || await classifyIntent(text);
         forcedIntent = null;
         addMessage(`🔀 Router → ${intent.toUpperCase()}`, 'system');
-
         let response = '';
-
         if (intent === 'code') {
             const codeResult = await codeSearch(text);
             if (codeResult.found) {
@@ -893,13 +893,13 @@ How It Works
                 addMessage(response, 'assistant', 1);
             }
         } else if (intent === 'web') {
-            const webResult = await webSearch(text);
+            const webResult = await smartWebSearch(text);
             if (webResult.found) {
                 response = webResult.text;
-                learnedFacts[cleanKey] = response.slice(0, 200);
+                learnedFacts[cleanKey] = `${response.slice(0, 150)} [${webResult.source || 'Web'}]`;
                 await saveFacts(learnedFacts);
                 refreshNeural();
-                addMessage(response, 'assistant', 1);
+                addMessage(`📖 ${webResult.title || 'Result'}: ${response}`, 'assistant', 1);
             } else {
                 const prompt = `Answer concisely: ${text}`;
                 response = await generateResponse(prompt);
@@ -911,18 +911,14 @@ How It Works
             response = await generateResponse(prompt);
             addMessage(response, 'assistant', 1);
         }
-
         if (!learnedFacts[cleanKey] && response) {
             learnedFacts[cleanKey] = response.slice(0, 200);
             await saveFacts(learnedFacts);
         }
-
         conversationMemory.push({ role: 'assistant', content: response });
         await saveMemory(conversationMemory);
         beep('receive');
-
         futureTag.textContent = `SYNC · ${2157 + Math.floor(Math.random() * 30)}`;
-
         setTimeout(() => {
             const keys = Object.keys(learnedFacts);
             if (keys.length > 0) {
@@ -930,14 +926,10 @@ How It Works
                 const idx = keys.indexOf(lastKey);
                 if (idx >= 0) {
                     activeNeurons.add(`n${idx}`);
-                    signalParticles.push({
-                        x: 50, y: 100,
-                        to: `n${idx}`
-                    });
+                    signalParticles.push({ x: 50, y: 100, to: `n${idx}` });
                 }
             }
         }, 300);
-
         refreshNeural();
     }
     document.getElementById('sendBtn').addEventListener('click', async () => {
@@ -962,11 +954,8 @@ How It Works
     document.getElementById('btnWeb').onclick = () => { forcedIntent = 'web'; addMessage('🌐 Web search', 'system'); };
     document.getElementById('btnMemory').onclick = () => {
         const keys = Object.keys(learnedFacts);
-        if (keys.length) {
-            addMessage(`🧠 Neural pathway: ${keys.length} neurons`, 'system');
-        } else {
-            addMessage('🧠 No neural pathways yet.', 'system');
-        }
+        if (keys.length) addMessage(`🧠 Neural pathway: ${keys.length} neurons`, 'system');
+        else addMessage('🧠 No neural pathways yet.', 'system');
     };
     document.getElementById('btnSever').onclick = () => { addMessage('⚠️ Severing link...', 'system'); beep('error'); };
     document.getElementById('btnClearChat').onclick = async () => {
@@ -994,9 +983,7 @@ How It Works
             'tensorflow': 'TensorFlow is an open-source ML framework by Google.',
             'deep learning': 'Deep learning uses layered neural networks for feature extraction.'
         };
-        for (const [k, v] of Object.entries(demoFacts)) {
-            learnedFacts[k] = v;
-        }
+        for (const [k, v] of Object.entries(demoFacts)) { learnedFacts[k] = v; }
         await saveFacts(learnedFacts);
         refreshNeural();
         addMessage(`🎭 Neural network trained with ${Object.keys(demoFacts).length} pathways!`, 'system');
@@ -1010,10 +997,8 @@ How It Works
         const rect = neuralCanvas.getBoundingClientRect();
         const mx = e.clientX - rect.left;
         const my = e.clientY - rect.top;
-
         const { neurons } = buildNeuralFromFacts();
         hoveredNeuron = null;
-
         for (const neuron of neurons) {
             const dist = Math.hypot(mx - neuron.x, my - neuron.y);
             if (dist < neuron.radius + 5) {
@@ -1054,13 +1039,11 @@ How It Works
         bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
         bgCtx.strokeStyle = '#2a4a7a';
         bgCtx.lineWidth = 0.5;
-
         particles.forEach((particle, i) => {
             particle.x += particle.vx;
             particle.y += particle.vy;
             if (particle.x < 0 || particle.x > bgCanvas.width) particle.vx *= -1;
             if (particle.y < 0 || particle.y > bgCanvas.height) particle.vy *= -1;
-
             particles.slice(i + 1).forEach(other => {
                 const dx = particle.x - other.x;
                 const dy = particle.y - other.y;
@@ -1074,38 +1057,26 @@ How It Works
                 }
             });
         });
-
         requestAnimationFrame(animateBackground);
     }
     animateBackground();
     document.addEventListener('DOMContentLoaded', async () => {
         setInterval(updateClock, 1000);
         updateClock();
-
         await openDB();
         learnedFacts = await loadFacts() || {};
         conversationMemory = await loadMemory() || [];
-
         requestAnimationFrame(() => {
             setTimeout(() => {
                 refreshNeural();
                 new ResizeObserver(refreshNeural).observe(neuralCanvas.parentElement);
             }, 150);
         });
-
         await loadModels();
-
         inputField.focus();
-
-        if (conversationMemory.length) {
-            addMessage(`📀 ${conversationMemory.length} messages loaded`, 'system');
-        }
-        if (Object.keys(learnedFacts).length) {
-            addMessage(`🧠 ${Object.keys(learnedFacts).length} neural pathways ready`, 'system');
-        }
-
+        if (conversationMemory.length) addMessage(`📀 ${conversationMemory.length} messages loaded`, 'system');
+        if (Object.keys(learnedFacts).length) addMessage(`🧠 ${Object.keys(learnedFacts).length} neural pathways ready`, 'system');
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
         console.log('✨ MYTHIC AI · DUAL MIND — Neural network active');
     });
 </script>
