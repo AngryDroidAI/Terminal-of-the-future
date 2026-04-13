@@ -3,15 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MYTHIC AI · DUAL MIND (Neural Network)</title>
+    <title>MYTHIC AI · WIKI LLM (Neural Network)</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
-    <script type="importmap">
-        {
-            "imports": {
-                "@xenova/transformers": "https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js"
-            }
-        }
-    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -131,7 +124,6 @@
         }
         .dot-cyan { background: #0ff; box-shadow: 0 0 12px #0ff; }
         .dot-purple { background: #a855f7; box-shadow: 0 0 10px #a855f7; }
-        .dot-orange { background: #f0b37b; box-shadow: 0 0 10px #f0b37b; }
         .chat-messages {
             flex: 1;
             padding: 20px;
@@ -152,6 +144,13 @@
             animation: fadeSlide 0.2s ease-out;
             border: 1px solid rgba(255,255,255,0.05);
         }
+        .message a {
+            color: #7dd3fc;
+            text-decoration: underline;
+        }
+        .message a:hover {
+            color: #0cf;
+        }
         @keyframes fadeSlide { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .user-msg {
             align-self: flex-end;
@@ -167,8 +166,9 @@
             border-right: 3px solid #a78bfa;
             color: #d1e0ff;
         }
-        .mind1-msg { border-right-color: #0cf; }
-        .mind2-msg { border-right-color: #f0b37b; }
+        .wiki-msg {
+            border-right-color: #2dd4bf;
+        }
         .system-msg {
             align-self: center;
             background: #111c2e;
@@ -177,32 +177,13 @@
             border: 1px dashed #3b82f6;
             padding: 6px 16px;
         }
-        .code-block {
-            background: #0a111f;
-            border: 1px solid #2dd4bf;
-            border-radius: 12px;
-            padding: 14px;
-            font-family: 'JetBrains Mono', monospace;
-            white-space: pre-wrap;
-            color: #b9f3f0;
-            position: relative;
-            max-width: 95%;
-            overflow-x: auto;
-        }
-        .copy-btn {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            background: #1e3a5f;
-            border: 1px solid #2dd4bf;
-            color: #b9f3f0;
-            border-radius: 6px;
-            padding: 4px 10px;
+        .attribution {
             font-size: 0.8rem;
-            cursor: pointer;
-            transition: background 0.2s;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed #2e5f8e;
+            color: #9cb8d9;
         }
-        .copy-btn:hover { background: #2dd4bf; color: #0a111f; }
         .input-area {
             padding: 20px;
             border-top: 1px solid #1e3a5f;
@@ -240,22 +221,6 @@
             transition: all 0.2s;
         }
         .send-btn:hover { background: #256f9e; box-shadow: 0 0 20px #0cf; }
-        .dual-toggle {
-            background: #0f1a2b;
-            border: 1px solid #a78bfa;
-            color: #c4b5fd;
-            padding: 8px 16px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        .dual-toggle.active {
-            background: #6b21a8;
-            border-color: #d8b4fe;
-            color: white;
-            box-shadow: 0 0 15px #a855f7;
-        }
         .graph-panel {
             flex: 0.9;
             background: rgba(8, 18, 28, 0.7);
@@ -352,24 +317,22 @@
         <div class="chat-panel" role="region" aria-label="Chat interface">
             <div class="chat-header">
                 <div class="studio-brand" aria-label="Mythic AI Brand">
-                    <span class="logo-icon" aria-hidden="true">🔮</span>
+                    <span class="logo-icon" aria-hidden="true">📖</span>
                     <span class="brand-text">MYTHIC AI</span>
-                    <span class="model-badge">DUAL MIND · NEURAL</span>
+                    <span class="model-badge">WIKI LLM · NEURAL</span>
                 </div>
                 <div class="status-row" aria-label="System status">
-                    <span class="status-dot" id="mind1Led" title="Primary Mind (Flan-T5)" aria-label="Primary mind status"></span>
-                    <span class="status-dot" id="mind2Led" title="Second Mind (GPT-2)" aria-label="Second mind status"></span>
+                    <span class="status-dot dot-cyan" id="wikiLed" title="Wikipedia LLM active" aria-label="Wikipedia knowledge active"></span>
                     <span class="status-dot dot-purple" id="graphLed" aria-label="Neural network status"></span>
                     <span id="live-clock" aria-live="polite">--:--:--</span>
                 </div>
             </div>
             <div class="chat-messages" id="chatOutput" role="log" aria-live="polite" aria-label="Chat messages">
-                <div class="message system-msg" role="status">✨ MYTHIC AI · DUAL MIND active. Neural network ready.</div>
-                <div class="message assistant-msg mind1-msg">🧠 Primary Mind online. Toggle Second Mind for collaboration.</div>
+                <div class="message system-msg" role="status">✨ MYTHIC AI · WIKI LLM active. Knowledge from Wikipedia (CC BY‑SA 4.0).</div>
+                <div class="message assistant-msg wiki-msg">📚 Ask me anything. I'll search Wikipedia and build neural pathways.</div>
             </div>
             <div class="input-area">
-                <input type="text" id="user-input" placeholder="Ask Mythic AI..." autocomplete="off" aria-label="Type your message" />
-                <button class="dual-toggle" id="dualMindToggle" title="Toggle Second Mind (GPT-2) collaboration" aria-pressed="false">🧠 Dual Mind</button>
+                <input type="text" id="user-input" placeholder="Ask about anything on Wikipedia..." autocomplete="off" aria-label="Type your message" />
                 <button class="send-btn" id="sendBtn" aria-label="Send message">➤ SEND</button>
                 <button id="muteToggle" aria-label="Toggle sound" style="background:none;border:1px solid #3b82f6;border-radius:40px;padding:8px 16px;color:#9cc;cursor:pointer;">🔊</button>
             </div>
@@ -379,7 +342,7 @@
                 <div class="graph-title">
                     <span aria-hidden="true">🔮</span>
                     <span>NEURAL NETWORK</span>
-                    <span style="font-size:0.8rem;">(synaptic connections)</span>
+                    <span style="font-size:0.8rem;">(synaptic memory)</span>
                 </div>
                 <div id="graphStats">neurons: 0 · synapses: 0</div>
             </div>
@@ -389,9 +352,7 @@
         </div>
     </div>
     <div class="toolbar" role="toolbar" aria-label="Tools">
-        <button class="tool-btn" id="btnChat" aria-pressed="false">💬 CHAT</button>
-        <button class="tool-btn" id="btnCode" aria-pressed="false">📟 CODE</button>
-        <button class="tool-btn" id="btnWeb" aria-pressed="false">🌐 WEB</button>
+        <button class="tool-btn" id="btnWiki" aria-pressed="false">🌐 WIKI SEARCH</button>
         <button class="tool-btn" id="btnMemory">🧠 RECALL</button>
         <button class="tool-btn danger-btn" id="btnSever">⚠️ SEVER</button>
         <button class="tool-btn" id="btnClearChat">🧹 CLEAR CHAT</button>
@@ -401,22 +362,28 @@
         <button class="tool-btn" id="btnDemo">🎭 DEMO</button>
     </div>
     <div class="footer-note">
-        <span>🔮 neural pathways strengthen with use</span>
+        <span>🧬 Content from Wikipedia · CC BY-SA 4.0</span>
         <span id="futureTag">SYNC · 2157</span>
     </div>
 </div>
 <script type="module">
-    import { pipeline, env } from '@xenova/transformers';
-    env.allowLocalModels = false;
-    env.useBrowserCache = true;
+    // ========================
+    // WIKI LLM + NEURAL MEMORY
+    // Attribution compliant: links to Wikipedia and license.
+    // ========================
+
     const DB_NAME = 'mythic_neural_db';
     const STORE_FACTS = 'facts';
     const STORE_MEM = 'memory';
     let db;
     let learnedFacts = {};
     let conversationMemory = [];
+
+    // Set a proper User-Agent as recommended by Wikimedia policy
+    const USER_AGENT = 'MythicAI-WikiLLM/1.0 (https://example.com; your-email@example.com)';
+
     const openDB = () => new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, 1);
+        const request = indexedDB.open(DB_NAME, 3);
         request.onerror = () => reject(request.error);
         request.onsuccess = () => { db = request.result; resolve(db); };
         request.onupgradeneeded = (event) => {
@@ -425,12 +392,14 @@
             if (!database.objectStoreNames.contains(STORE_MEM)) database.createObjectStore(STORE_MEM);
         };
     });
+
     const saveFacts = async (facts) => {
         if (!db) await openDB();
         const tx = db.transaction(STORE_FACTS, 'readwrite');
         tx.objectStore(STORE_FACTS).put(facts, 'facts');
         return new Promise((resolve) => { tx.oncomplete = () => resolve(); });
     };
+
     const loadFacts = async () => {
         if (!db) await openDB();
         const tx = db.transaction(STORE_FACTS, 'readonly');
@@ -440,12 +409,14 @@
             request.onerror = () => resolve({});
         });
     };
+
     const saveMemory = async (memory) => {
         if (!db) await openDB();
         const tx = db.transaction(STORE_MEM, 'readwrite');
         tx.objectStore(STORE_MEM).put(memory, 'memory');
         return new Promise((resolve) => { tx.oncomplete = () => resolve(); });
     };
+
     const loadMemory = async () => {
         if (!db) await openDB();
         const tx = db.transaction(STORE_MEM, 'readonly');
@@ -455,72 +426,63 @@
             request.onerror = () => resolve([]);
         });
     };
+
     const clearFactsDB = async () => {
         if (!db) await openDB();
         const tx = db.transaction(STORE_FACTS, 'readwrite');
         tx.objectStore(STORE_FACTS).delete('facts');
         return new Promise((resolve) => { tx.oncomplete = () => resolve(); });
     };
+
     const clearMemoryDB = async () => {
         if (!db) await openDB();
         const tx = db.transaction(STORE_MEM, 'readwrite');
         tx.objectStore(STORE_MEM).delete('memory');
         return new Promise((resolve) => { tx.oncomplete = () => resolve(); });
     };
-    let generator1 = null;
-    let generator2 = null;
-    let model1Ready = false;
-    let model2Ready = false;
-    let dualMindActive = false;
-    let forcedIntent = null;
-    let audioCtx = null;
-    let muted = false;
+
+    // UI elements
     const outputDiv = document.getElementById('chatOutput');
     const inputField = document.getElementById('user-input');
     const neuralCanvas = document.getElementById('neuralCanvas');
     const ctx = neuralCanvas.getContext('2d');
     const graphStats = document.getElementById('graphStats');
     const futureTag = document.getElementById('futureTag');
-    const mind1Led = document.getElementById('mind1Led');
-    const mind2Led = document.getElementById('mind2Led');
-    const dualToggle = document.getElementById('dualMindToggle');
+    const wikiLed = document.getElementById('wikiLed');
+
     let hoveredNeuron = null;
     let activeNeurons = new Set();
     let signalParticles = [];
+    let audioCtx = null;
+    let muted = false;
+
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
-    function addMessage(text, type = 'assistant', mind = 1) {
+
+    // Enhanced addMessage with HTML support for links
+    function addMessage(text, type = 'assistant', extraClass = 'wiki-msg', isHtml = false) {
         const div = document.createElement('div');
-        if (type === 'code') {
-            div.className = 'code-block';
-            div.innerHTML = `<pre>${escapeHtml(text)}</pre>`;
-            const btn = document.createElement('button');
-            btn.className = 'copy-btn';
-            btn.textContent = '📋';
-            btn.setAttribute('aria-label', 'Copy code');
-            btn.onclick = () => {
-                navigator.clipboard.writeText(text).then(() => {
-                    btn.textContent = '✓';
-                    setTimeout(() => btn.textContent = '📋', 1000);
-                });
-            };
-            div.appendChild(btn);
-        } else if (type === 'user') {
+        if (type === 'user') {
             div.className = 'message user-msg';
             div.textContent = text;
         } else if (type === 'system') {
             div.className = 'message system-msg';
-            div.textContent = text;
+            div.innerHTML = isHtml ? text : escapeHtml(text);
         } else {
-            div.className = `message assistant-msg mind${mind}-msg`;
-            div.textContent = text;
+            div.className = `message assistant-msg ${extraClass}`;
+            if (isHtml) {
+                div.innerHTML = text;
+            } else {
+                div.textContent = text;
+            }
         }
         outputDiv.appendChild(div);
         outputDiv.scrollTop = outputDiv.scrollHeight;
     }
+
     function beep(type = 'send') {
         if (muted || !audioCtx) return;
         try {
@@ -529,18 +491,21 @@
             const gainNode = audioCtx.createGain();
             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
-            const frequency = type === 'send' ? 800 : type === 'receive' ? 1000 : 600;
+            const frequency = type === 'send' ? 800 : 1000;
             oscillator.frequency.value = frequency;
             oscillator.type = 'sine';
             gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
             oscillator.start();
             oscillator.stop(audioCtx.currentTime + 0.1);
-        } catch (e) { console.warn('Audio error:', e); }
+        } catch (e) {}
     }
+
     function updateClock() {
         document.getElementById('live-clock').textContent = new Date().toLocaleTimeString();
     }
+
+    // Neural graph from facts
     function buildNeuralFromFacts() {
         const facts = Object.entries(learnedFacts);
         const neurons = [];
@@ -549,7 +514,7 @@
                 id: `n${i}`,
                 label: key.slice(0, 20),
                 key,
-                value: val.slice(0, 60),
+                value: val.slice(0, 100),
                 layer: i < 3 ? 0 : i < 6 ? 1 : 2
             });
         });
@@ -566,6 +531,7 @@
         }
         return { neurons, synapses };
     }
+
     function drawNeuralNetwork() {
         const wrapper = neuralCanvas.parentElement;
         const w = neuralCanvas.width = wrapper.clientWidth;
@@ -581,7 +547,7 @@
             ctx.fillStyle = '#4a6a8e';
             ctx.font = '16px "Space Grotesk", sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('🧠 Train the neural network', w / 2, h / 2);
+            ctx.fillText('🧠 Ask Wikipedia to build neural memory', w / 2, h / 2);
             return;
         }
         const padding = 60;
@@ -625,27 +591,6 @@
             }
             ctx.stroke();
         });
-        if (signalParticles.length > 0) {
-            signalParticles.forEach(p => {
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-                ctx.fillStyle = '#00ffcc';
-                ctx.shadowColor = '#00ffaa';
-                ctx.shadowBlur = 10;
-                ctx.fill();
-                ctx.shadowBlur = 0;
-            });
-            signalParticles = signalParticles.filter(p => {
-                const target = neurons.find(n => n.id === p.to);
-                if (!target) return false;
-                const dx = target.x - p.x;
-                const dy = target.y - p.y;
-                const dist = Math.hypot(dx, dy);
-                p.x += (dx / dist) * 3;
-                p.y += (dy / dist) * 3;
-                return dist > 5;
-            });
-        }
         neurons.forEach(neuron => {
             const isActive = activeNeurons.has(neuron.id);
             const isHovered = hoveredNeuron && neuron.id === hoveredNeuron.id;
@@ -663,9 +608,7 @@
                 ctx.fillStyle = isHovered ? '#22c55e' : '#166534';
             }
             ctx.fill();
-            if (isActive || isHovered) {
-                ctx.shadowBlur = 15;
-            }
+            ctx.shadowBlur = isActive || isHovered ? 15 : 0;
             ctx.strokeStyle = isHovered ? '#fff' : (neuron.layer === 0 ? '#0cf' : neuron.layer === 1 ? '#a78bfa' : '#22c55e');
             ctx.lineWidth = 2;
             ctx.stroke();
@@ -692,57 +635,28 @@
         }
         requestAnimationFrame(drawNeuralNetwork);
     }
+
     const refreshNeural = () => { drawNeuralNetwork(); };
-    async function loadModels() {
-        try {
-            addMessage('🔵 Loading Primary Mind (Flan-T5)...', 'system');
-            generator1 = await pipeline('text2text-generation', 'Xenova/LaMini-Flan-T5-77M');
-            model1Ready = true;
-            mind1Led.classList.add('dot-cyan');
-            addMessage('✅ Primary Mind online.', 'system');
-        } catch (e) {
-            console.error('Primary model error:', e);
-            addMessage('⚠️ Primary model failed to load.', 'system');
-        }
-        try {
-            addMessage('🟠 Loading Second Mind (GPT-2)...', 'system');
-            generator2 = await pipeline('text-generation', 'Xenova/gpt2');
-            model2Ready = true;
-            mind2Led.classList.add('dot-orange');
-            addMessage('✅ Second Mind online. Toggle Dual Mind to collaborate.', 'system');
-        } catch (e) {
-            console.error('Secondary model error:', e);
-            addMessage('⚠️ Second model unavailable.', 'system');
-        }
-    }
-    async function classifyIntent(message) {
-        if (!model1Ready) {
-            const lower = message.toLowerCase();
-            if (lower.includes('code') || lower.includes('function') || lower.includes('script')) return 'code';
-            if (lower.includes('search') || lower.includes('find') || lower.includes('?') || lower.includes('what is') || lower.includes('who is') || lower.includes('how to') || lower.includes('define')) return 'web';
-            return 'chat';
-        }
-        const prompt = `Classify: "chat", "code", or "web".\nUser: ${message}\nCategory:`;
-        try {
-            const result = await generator1(prompt, { max_new_tokens: 5, temperature: 0.1 });
-            const category = result[0].generated_text.toLowerCase();
-            if (category.includes('code')) return 'code';
-            if (category.includes('web')) return 'web';
-            return 'chat';
-        } catch (e) {
-            console.error('Intent classification error:', e);
-            return 'chat';
-        }
-    }
+
+    // Wikipedia search with proper attribution and User-Agent
     async function wikipediaSearch(query) {
         try {
+            // First, search for the article
             const searchUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(query)}&limit=3&format=json&origin=*`;
-            const searchRes = await fetch(searchUrl);
+            const searchRes = await fetch(searchUrl, {
+                headers: { 'User-Agent': USER_AGENT }
+            });
             const searchData = await searchRes.json();
             if (!searchData[1] || searchData[1].length === 0) return { found: false };
+
             const title = searchData[1][0];
+            const articleUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`;
+
+            // Fetch the extract
             const summaryUrl = `https://en.wikipedia.org/w/api.php?action=query&prop=extracts&exintro=true&explaintext=true&titles=${encodeURIComponent(title)}&format=json&origin=*`;
-            const summaryRes = await fetch(summaryUrl);
+            const summaryRes = await fetch(summaryUrl, {
+                headers: { 'User-Agent': USER_AGENT }
+            });
             const summaryData = await summaryRes.json();
             const pages = summaryData.query?.pages;
             if (pages) {
@@ -750,9 +664,9 @@
                 if (page.extract) {
                     return {
                         found: true,
-                        text: page.extract.slice(0, 500),
+                        text: page.extract.slice(0, 600),
                         title: title,
-                        url: `https://en.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`
+                        url: articleUrl
                     };
                 }
             }
@@ -762,72 +676,20 @@
             return { found: false };
         }
     }
-    async function duckDuckGoSearch(query) {
-        try {
-            const response = await fetch(
-                `https://api.allorigins.win/raw?url=${encodeURIComponent('https://api.duckduckgo.com/?q=' + encodeURIComponent(query) + '&format=json&no_html=1')}`
-            );
-            const data = await response.json();
-            if (data.Abstract) return { found: true, text: data.Abstract, source: 'DuckDuckGo' };
-            if (data.RelatedTopics?.length > 0 && data.RelatedTopics[0]?.Text) {
-                return { found: true, text: data.RelatedTopics[0].Text, source: 'DuckDuckGo' };
-            }
-            return { found: false };
-        } catch (e) {
-            return { found: false };
-        }
-    }
-    async function smartWebSearch(query) {
-        addMessage('<span class="searching">🔍 Searching Wikipedia...</span>', 'system');
-        const wikiResult = await wikipediaSearch(query);
-        if (wikiResult.found) {
-            addMessage(`📚 Found on Wikipedia: ${wikiResult.title}`, 'system');
-            return { ...wikiResult, source: 'Wikipedia' };
-        }
-        addMessage('🔍 Trying DuckDuckGo...', 'system');
-        const ddgResult = await duckDuckGoSearch(query);
-        if (ddgResult.found) {
-            return ddgResult;
-        }
-        return { found: false };
-    }
-    const codeSnippets = {
-        'fetch api': "fetch(url).then(r => r.json()).then(console.log)",
-        'css grid': ".grid { display: grid; gap: 1rem; }",
-        'async function': "async function name() {\n  const data = await fetch(url);\n  return data.json();\n}",
-        'event listener': "element.addEventListener('click', (e) => {\n  console.log(e.target);\n});"
-    };
-    async function codeSearch(query) {
-        const lower = query.toLowerCase();
-        for (const [key, code] of Object.entries(codeSnippets)) {
-            if (lower.includes(key)) return { found: true, title: key, code };
-        }
-        return { found: false };
-    }
-    async function generateResponse(prompt, useDual = dualMindActive) {
-        if (!model1Ready) return "Primary mind offline. Please refresh the page.";
-        try {
-            const result1 = await generator1(prompt, { max_new_tokens: 80, temperature: 0.85 });
-            let primary = result1[0].generated_text.trim();
-            if (!useDual || !model2Ready) return primary;
-            const secondaryPrompt = `Rewrite creatively: ${primary}\nAlternative:`;
-            try {
-                const result2 = await generator2(secondaryPrompt, { max_new_tokens: 60, temperature: 0.9 });
-                const secondary = result2[0].generated_text.trim();
-                addMessage(`🧠 Primary: ${primary}`, 'assistant', 1);
-                addMessage(`🌀 Second Mind: ${secondary}`, 'assistant', 2);
-                return `**Synthesized**: ${primary} (Second mind suggests: ${secondary})`;
-            } catch (e2) { return primary; }
-        } catch (e) { return "Error generating response."; }
-    }
+
+    // Process user input: check local memory first, else query Wikipedia
     async function processInput(text) {
         addMessage(text, 'user');
         conversationMemory.push({ role: 'user', content: text });
         await saveMemory(conversationMemory);
         beep('send');
+
         const cleanKey = text.toLowerCase().replace(/[?.,!]/g, '').trim();
+
+        // 1. Check neural memory
         if (learnedFacts[cleanKey]) {
-            addMessage(learnedFacts[cleanKey], 'assistant', 1);
+            // Display stored fact (may contain HTML links if we stored them)
+            addMessage(learnedFacts[cleanKey], 'assistant', 'wiki-msg', true);
             const keys = Object.keys(learnedFacts);
             const idx = keys.indexOf(cleanKey);
             if (idx >= 0) activeNeurons.add(`n${idx}`);
@@ -835,92 +697,84 @@
             conversationMemory.push({ role: 'assistant', content: learnedFacts[cleanKey] });
             await saveMemory(conversationMemory);
             beep('receive');
+            refreshNeural();
             return;
         }
-        let intent = forcedIntent || await classifyIntent(text);
-        forcedIntent = null;
-        addMessage(`🔀 Router → ${intent.toUpperCase()}`, 'system');
-        let response = '';
-        if (intent === 'code') {
-            const codeResult = await codeSearch(text);
-            if (codeResult.found) {
-                response = codeResult.code;
-                addMessage(response, 'code');
-            } else {
-                response = "No matching code snippet found.";
-                addMessage(response, 'assistant', 1);
-            }
-        } else if (intent === 'web') {
-            const webResult = await smartWebSearch(text);
-            if (webResult.found) {
-                response = webResult.text;
-                learnedFacts[cleanKey] = `${response.slice(0, 150)} [${webResult.source || 'Web'}]`;
-                await saveFacts(learnedFacts);
-                refreshNeural();
-                addMessage(`📖 ${webResult.title || 'Result'}: ${response}`, 'assistant', 1);
-            } else {
-                const prompt = `Answer concisely: ${text}`;
-                response = await generateResponse(prompt);
-                addMessage(response, 'assistant', 1);
+
+        // 2. Wikipedia LLM (search)
+        addMessage('<span class="searching">🔍 Searching Wikipedia...</span>', 'system', '', true);
+        const wikiResult = await wikipediaSearch(text);
+
+        let responseHtml = '';
+        if (wikiResult.found) {
+            const extract = wikiResult.text;
+            const title = wikiResult.title;
+            const url = wikiResult.url;
+            const licenseLink = 'https://creativecommons.org/licenses/by-sa/4.0/';
+
+            // Build HTML with proper attribution
+            responseHtml = `
+                <strong>📖 ${escapeHtml(title)}</strong><br><br>
+                ${escapeHtml(extract)}<br><br>
+                <div class="attribution">
+                    🔗 <a href="${url}" target="_blank" rel="noopener">Read full article on Wikipedia</a><br>
+                    📜 Content available under <a href="${licenseLink}" target="_blank" rel="noopener">CC BY-SA 4.0</a>
+                </div>
+            `;
+
+            // Store the HTML representation for future recall
+            learnedFacts[cleanKey] = responseHtml;
+            await saveFacts(learnedFacts);
+            refreshNeural();
+
+            addMessage(responseHtml, 'assistant', 'wiki-msg', true);
+
+            // Activate neuron
+            const keys = Object.keys(learnedFacts);
+            const idx = keys.indexOf(cleanKey);
+            if (idx >= 0) {
+                activeNeurons.add(`n${idx}`);
+                setTimeout(() => activeNeurons.clear(), 2000);
             }
         } else {
-            const factsStr = Object.entries(learnedFacts).map(([k, v]) => `${k}=${v}`).join('; ');
-            const prompt = factsStr ? `Facts: ${factsStr}\nUser: ${text}\nAI:` : text;
-            response = await generateResponse(prompt);
-            addMessage(response, 'assistant', 1);
+            responseHtml = `I couldn't find a Wikipedia article on "<strong>${escapeHtml(text)}</strong>". Try rephrasing or asking about a broader topic.`;
+            addMessage(responseHtml, 'assistant', 'wiki-msg', true);
         }
-        if (!learnedFacts[cleanKey] && response) {
-            learnedFacts[cleanKey] = response.slice(0, 200);
-            await saveFacts(learnedFacts);
-        }
-        conversationMemory.push({ role: 'assistant', content: response });
+
+        conversationMemory.push({ role: 'assistant', content: responseHtml });
         await saveMemory(conversationMemory);
         beep('receive');
         futureTag.textContent = `SYNC · ${2157 + Math.floor(Math.random() * 30)}`;
-        setTimeout(() => {
-            const keys = Object.keys(learnedFacts);
-            if (keys.length > 0) {
-                const lastKey = keys[keys.length - 1];
-                const idx = keys.indexOf(lastKey);
-                if (idx >= 0) {
-                    activeNeurons.add(`n${idx}`);
-                    signalParticles.push({ x: 50, y: 100, to: `n${idx}` });
-                }
-            }
-        }, 300);
         refreshNeural();
     }
+
+    // Event listeners
     document.getElementById('sendBtn').addEventListener('click', async () => {
         const value = inputField.value.trim();
         if (!value) return;
         inputField.value = '';
         await processInput(value);
     });
+
     inputField.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') document.getElementById('sendBtn').click();
     });
-    dualToggle.addEventListener('click', () => {
-        dualMindActive = !dualMindActive;
-        dualToggle.classList.toggle('active', dualMindActive);
-        dualToggle.setAttribute('aria-pressed', dualMindActive);
-        dualToggle.innerHTML = dualMindActive ? '🧠 Dual Mind ON' : '🧠 Dual Mind';
-        addMessage(dualMindActive ? '🌀 Second Mind activated. Collaborating...' : '🔵 Single Mind mode.', 'system');
-        if (dualMindActive && !model2Ready) addMessage('⚠️ Second model not loaded yet.', 'system');
-    });
-    document.getElementById('btnChat').onclick = () => { forcedIntent = 'chat'; addMessage('💬 Chat mode', 'system'); };
-    document.getElementById('btnCode').onclick = () => { forcedIntent = 'code'; addMessage('📟 Code mode', 'system'); };
-    document.getElementById('btnWeb').onclick = () => { forcedIntent = 'web'; addMessage('🌐 Web search', 'system'); };
+
+    // Toolbar actions
+    document.getElementById('btnWiki').onclick = () => {
+        addMessage('🌐 Wikipedia mode — ask anything. All content is CC BY-SA 4.0 licensed.', 'system', '', true);
+        inputField.focus();
+    };
     document.getElementById('btnMemory').onclick = () => {
         const keys = Object.keys(learnedFacts);
-        if (keys.length) addMessage(`🧠 Neural pathway: ${keys.length} neurons`, 'system');
-        else addMessage('🧠 No neural pathways yet.', 'system');
+        addMessage(`🧠 Neural memory: ${keys.length} stored facts`, 'system');
     };
-    document.getElementById('btnSever').onclick = () => { addMessage('⚠️ Severing link...', 'system'); beep('error'); };
+    document.getElementById('btnSever').onclick = () => { addMessage('⚠️ Severing link... (simulated)', 'system'); beep('send'); };
     document.getElementById('btnClearChat').onclick = async () => {
         await clearMemoryDB();
         conversationMemory = [];
         outputDiv.innerHTML = '';
-        addMessage('Chat cleared', 'system');
+        addMessage('✨ Chat cleared. Neural memory intact.', 'system');
     };
     document.getElementById('btnForgetFacts').onclick = async () => {
         await clearFactsDB();
@@ -928,29 +782,29 @@
         activeNeurons.clear();
         signalParticles = [];
         refreshNeural();
-        addMessage('Neural pathways pruned', 'system');
+        addMessage('📚 Neural pathways pruned.', 'system');
     };
     document.getElementById('btnTheme').onclick = () => { document.body.style.filter = document.body.style.filter ? '' : 'hue-rotate(180deg)'; };
     document.getElementById('btnFullscreen').onclick = () => { document.getElementById('studioContainer').classList.toggle('fullscreen'); };
     document.getElementById('btnDemo').onclick = async () => {
         const demoFacts = {
-            'python': 'Python is a high-level programming language created by Guido van Rossum.',
-            'javascript': 'JavaScript is the scripting language for web browsers.',
-            'machine learning': 'ML enables computers to learn from data without explicit programming.',
-            'neural network': 'Neural networks are inspired by biological brain structures.',
-            'tensorflow': 'TensorFlow is an open-source ML framework by Google.',
-            'deep learning': 'Deep learning uses layered neural networks for feature extraction.'
+            'artificial intelligence': `<strong>📖 Artificial intelligence</strong><br><br>AI is intelligence demonstrated by machines.<br><br><div class="attribution">🔗 <a href="https://en.wikipedia.org/wiki/Artificial_intelligence" target="_blank">Wikipedia</a> · CC BY-SA 4.0</div>`,
+            'neural network': `<strong>📖 Neural network</strong><br><br>Neural networks are computing systems inspired by biological brains.<br><br><div class="attribution">🔗 <a href="https://en.wikipedia.org/wiki/Neural_network" target="_blank">Wikipedia</a> · CC BY-SA 4.0</div>`,
+            'wikipedia': `<strong>📖 Wikipedia</strong><br><br>Wikipedia is a free online encyclopedia.<br><br><div class="attribution">🔗 <a href="https://en.wikipedia.org/wiki/Wikipedia" target="_blank">Wikipedia</a> · CC BY-SA 4.0</div>`
         };
         for (const [k, v] of Object.entries(demoFacts)) { learnedFacts[k] = v; }
         await saveFacts(learnedFacts);
         refreshNeural();
-        addMessage(`🎭 Neural network trained with ${Object.keys(demoFacts).length} pathways!`, 'system');
+        addMessage(`🎭 Demo neural network loaded with ${Object.keys(demoFacts).length} pathways!`, 'system');
     };
+
     document.getElementById('muteToggle').addEventListener('click', () => {
         muted = !muted;
         document.getElementById('muteToggle').textContent = muted ? '🔇' : '🔊';
         if (!muted && !audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     });
+
+    // Canvas interactivity
     neuralCanvas.addEventListener('mousemove', (e) => {
         const rect = neuralCanvas.getBoundingClientRect();
         const mx = e.clientX - rect.left;
@@ -967,15 +821,17 @@
         }
         if (!hoveredNeuron) neuralCanvas.style.cursor = 'default';
     });
+
     neuralCanvas.addEventListener('click', () => {
         if (hoveredNeuron) {
-            addMessage(`🧠 ${hoveredNeuron.key}: ${hoveredNeuron.value}`, 'system');
-            const idx = parseInt(hoveredNeuron.id.slice(1));
+            addMessage(`🧠 ${hoveredNeuron.key}: ${hoveredNeuron.value}`, 'system', '', true);
             activeNeurons.add(hoveredNeuron.id);
             setTimeout(() => activeNeurons.clear(), 1500);
             beep('receive');
         }
     });
+
+    // Background animation
     const bgCanvas = document.getElementById('graph-bg');
     const bgCtx = bgCanvas.getContext('2d');
     function resizeBackground() {
@@ -1018,6 +874,8 @@
         requestAnimationFrame(animateBackground);
     }
     animateBackground();
+
+    // Initialize
     document.addEventListener('DOMContentLoaded', async () => {
         setInterval(updateClock, 1000);
         updateClock();
@@ -1030,12 +888,12 @@
                 new ResizeObserver(refreshNeural).observe(neuralCanvas.parentElement);
             }, 150);
         });
-        await loadModels();
         inputField.focus();
         if (conversationMemory.length) addMessage(`📀 ${conversationMemory.length} messages loaded`, 'system');
         if (Object.keys(learnedFacts).length) addMessage(`🧠 ${Object.keys(learnedFacts).length} neural pathways ready`, 'system');
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        console.log('✨ MYTHIC AI · DUAL MIND — Neural network active');
+        wikiLed.classList.add('dot-cyan');
+        console.log('✨ MYTHIC AI · WIKI LLM — Neural network active (attribution compliant)');
     });
 </script>
 </body>
